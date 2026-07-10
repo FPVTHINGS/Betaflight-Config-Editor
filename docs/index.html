@@ -875,7 +875,7 @@ function renderAll() {
    INFO BAR
    ═══════════════════════════════════════════════════════════════════════════ */
 function updateInfoBar() {
-  const version = parsedConfig.bfVersion || '&mdash;';
+  const version = parsedConfig.bfVersion || '\u2014';
   let craft = parsedConfig.globalParams['craft_name'] || '';
   if (!craft) {
     for (const p of Object.values(parsedConfig.profiles)) {
@@ -883,7 +883,7 @@ function updateInfoBar() {
     }
   }
   document.getElementById('info-version').innerHTML      = `BF <span>${esc(version)}</span>`;
-  document.getElementById('info-craft').innerHTML        = `Craft: <span>${esc(craft || '&mdash;')}</span>`;
+  document.getElementById('info-craft').innerHTML        = `Craft: <span>${esc(craft || '\u2014')}</span>`;
   document.getElementById('info-pid-profiles').innerHTML = `PID Profiles: <span>${parsedConfig.profileCount}</span>`;
   document.getElementById('info-rate-profiles').innerHTML= `Rate Profiles: <span>${parsedConfig.rateprofileCount}</span>`;
 
