@@ -5,144 +5,148 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Betaflight Config Editor</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x26A1;</text></svg>">
-  <link rel="stylesheet" href="style.css">
+<style>
+/* ── Reset & Base ─────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f0f;--bg-card:#181818;--bg-input:#222;--bg-input-ro:#1a1a1a;
+  --border:#2e2e2e;--border-focus:#39FF14;--text:#e8e8e8;--text-muted:#888;
+  --text-label:#b0b0b0;--accent:#39FF14;--accent-dim:#1f8a0a;
+  --warn:#ff9500;--warn-bg:#1a1000;--danger:#ff3b30;--danger-bg:#1a0000;
+  --hw-lock:#555;--hw-bg:#151515;--radius:6px;--radius-lg:10px;
+}
+html{font-size:15px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.5;min-height:100vh}
 
-  <!-- PyScript runtime -->
-  <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
-  <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+/* ── Header ─────────────────────────────────────────────────────────────── */
+header{background:var(--bg-card);border-bottom:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;gap:16px}
+.header-logo{font-size:1.8rem;line-height:1}
+.header-text h1{font-size:1.3rem;font-weight:700;color:var(--accent);letter-spacing:.02em}
+.header-text p{font-size:.82rem;color:var(--text-muted);margin-top:2px}
+
+/* ── Main ────────────────────────────────────────────────────────────────── */
+main{max-width:1100px;margin:0 auto;padding:24px 20px 60px;display:flex;flex-direction:column;gap:20px}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px}
+.card h2{font-size:1rem;font-weight:600;color:var(--text-label);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
+
+/* ── Import ──────────────────────────────────────────────────────────────── */
+.import-row{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch;margin-bottom:16px}
+.import-upload-area{border:2px dashed var(--border);border-radius:var(--radius);padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.import-upload-area:hover{border-color:var(--accent-dim)}
+.upload-icon{font-size:2rem;line-height:1}
+.upload-label{cursor:pointer;color:var(--accent);font-weight:600;font-size:.9rem}
+.upload-label:hover{text-decoration:underline}
+#file-name{font-size:.8rem;color:var(--text-muted)}
+.import-divider{display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.85rem;font-weight:500}
+#paste-area{width:100%;height:100%;min-height:120px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Consolas','Courier New',monospace;font-size:.78rem;padding:10px 12px;resize:vertical;outline:none;transition:border-color .2s}
+#paste-area:focus{border-color:var(--accent)}
+.import-actions{display:flex;align-items:center;gap:12px}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:var(--radius);font-size:.88rem;font-weight:600;cursor:pointer;border:none;outline:none;transition:opacity .15s,transform .1s;white-space:nowrap}
+.btn:hover{opacity:.88}.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#000}
+.btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent-dim)}
+
+/* ── Messages ────────────────────────────────────────────────────────────── */
+.error-msg{background:var(--danger-bg);border:1px solid var(--danger);color:var(--danger);border-radius:var(--radius);padding:10px 14px;font-size:.85rem;margin-top:10px}
+.success-msg{background:#001a00;border:1px solid var(--accent-dim);color:var(--accent);border-radius:var(--radius);padding:10px 14px;font-size:.85rem;margin-top:10px}
+
+/* ── Config Info Bar ─────────────────────────────────────────────────────── */
+#config-info{background:var(--bg-card);border:1px solid var(--accent-dim);border-radius:var(--radius-lg);padding:12px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.info-badge{background:var(--bg-input);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:.8rem;color:var(--text-label);font-weight:500}
+.info-badge span{color:var(--accent);font-weight:700}
+
+/* ── Tabs ────────────────────────────────────────────────────────────────── */
+.tab-nav{display:flex;flex-wrap:wrap;gap:4px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:8px 8px 0;border-bottom:none}
+.tab-btn{padding:8px 16px;background:transparent;border:none;border-radius:var(--radius) var(--radius) 0 0;color:var(--text-muted);font-size:.85rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:0 0 var(--radius-lg) var(--radius-lg);border-top:none;padding:24px;display:none}
+.tab-panel.active{display:block}
+
+/* ── Profile Selector ────────────────────────────────────────────────────── */
+.profile-selector-row{display:flex;align-items:center;gap:12px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:20px;flex-wrap:wrap}
+.profile-selector-row label{font-size:.85rem;color:var(--text-muted);font-weight:500;white-space:nowrap}
+.profile-selector-row select{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:.88rem;padding:5px 10px;outline:none;cursor:pointer}
+.profile-selector-row select:focus{border-color:var(--accent)}
+.profile-note{font-size:.78rem;color:var(--text-muted);font-style:italic}
+
+/* ── Section Headers ─────────────────────────────────────────────────────── */
+.section-header{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-dim);border-bottom:1px solid var(--border);padding-bottom:6px;margin:24px 0 16px;grid-column:1/-1}
+.section-header:first-child{margin-top:0}
+.tab-sub-divider{border-top:1px solid var(--border);margin:32px 0 0;grid-column:1/-1}
+.tab-sub-title{font-size:1rem;font-weight:600;color:var(--text-label);margin-bottom:16px;grid-column:1/-1;margin-top:16px}
+
+/* ── Fields Grid ─────────────────────────────────────────────────────────── */
+.fields-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.field-group{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;display:flex;flex-direction:column;gap:6px;transition:border-color .15s}
+.field-group:hover{border-color:#3a3a3a}
+.field-group.hw-locked{background:var(--hw-bg);border-color:#2a2a2a;opacity:.8}
+.field-label-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.field-label{font-size:.82rem;font-weight:600;color:var(--text-label)}
+
+/* ── Tooltip ─────────────────────────────────────────────────────────────── */
+.tooltip-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--border);color:var(--text-muted);font-size:.65rem;font-weight:700;cursor:help;position:relative;flex-shrink:0}
+.tooltip-icon:hover{background:var(--accent-dim);color:var(--accent)}
+.tooltip-icon::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#111;border:1px solid var(--border);color:var(--text);font-size:.78rem;font-weight:400;line-height:1.45;padding:8px 12px;border-radius:var(--radius);width:240px;white-space:normal;z-index:100;pointer-events:none;opacity:0;transition:opacity .15s;box-shadow:0 4px 16px rgba(0,0,0,.6)}
+.tooltip-icon:hover::after{opacity:1}
+
+/* ── Inputs ──────────────────────────────────────────────────────────────── */
+.field-number-wrap{display:flex;align-items:center;gap:6px}
+input[type="text"],input[type="number"],select{width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:.88rem;padding:7px 10px;outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--accent)}
+input[readonly]{background:var(--bg-input-ro);color:var(--text-muted);cursor:not-allowed;border-color:#232323}
+.unit-label{font-size:.78rem;color:var(--text-muted);white-space:nowrap;flex-shrink:0}
+.hw-badge{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;color:var(--hw-lock);margin-top:2px}
+.field-note{font-size:.75rem;color:var(--text-muted);font-style:italic;margin-top:2px;line-height:1.4}
+.field-adding-badge{display:inline-block;margin-top:4px;font-size:.72rem;color:var(--accent-dim);font-style:italic}
+
+/* ── Toggle ──────────────────────────────────────────────────────────────── */
+.toggle-wrap{display:flex;align-items:center;gap:8px}
+.toggle-label{position:relative;display:inline-block;width:46px;height:24px;flex-shrink:0}
+.toggle-label input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#333;border-radius:24px;cursor:pointer;transition:background .25s}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#888;border-radius:50%;transition:transform .25s,background .25s}
+.toggle-label input:checked+.toggle-slider{background:var(--accent-dim)}
+.toggle-label input:checked+.toggle-slider::before{transform:translateX(22px);background:var(--accent)}
+.toggle-state-label{font-size:.82rem;color:var(--text-muted)}
+
+/* ── Callouts ────────────────────────────────────────────────────────────── */
+.callout{border-radius:var(--radius);padding:12px 16px;font-size:.85rem;line-height:1.5;margin-bottom:16px}
+.callout strong{display:block;margin-bottom:4px}
+.callout-warn{background:var(--warn-bg);border:1px solid var(--warn);color:var(--warn)}
+.callout-info{background:#0a1520;border:1px solid #1a4a7a;color:#7ab8e8}
+.callout-info strong{color:#a0d0f8}
+
+/* ── Raw Paste ───────────────────────────────────────────────────────────── */
+.raw-paste-section{display:flex;flex-direction:column;gap:10px}
+.raw-paste-section label{font-size:.82rem;font-weight:600;color:var(--text-label)}
+.raw-paste{width:100%;min-height:160px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Consolas','Courier New',monospace;font-size:.82rem;padding:12px;resize:vertical;outline:none;transition:border-color .2s}
+.raw-paste:focus{border-color:var(--accent)}
+
+/* ── Export ──────────────────────────────────────────────────────────────── */
+.export-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#export-filename{flex:1;min-width:200px;max-width:340px;font-family:'Consolas','Courier New',monospace;font-size:.88rem}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+footer{text-align:center;padding:24px 20px;font-size:.78rem;color:var(--text-muted);border-top:1px solid var(--border)}
+footer a{color:var(--accent-dim);text-decoration:none}
+footer a:hover{color:var(--accent)}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media(max-width:720px){
+  header{padding:16px}main{padding:16px 12px 40px}.card{padding:16px}.tab-panel{padding:16px}
+  .import-row{grid-template-columns:1fr}.import-divider{display:none}
+  .fields-grid{grid-template-columns:1fr}.tab-nav{gap:2px}
+  .tab-btn{padding:7px 10px;font-size:.78rem}.export-row{flex-direction:column;align-items:stretch}
+  #export-filename{max-width:100%}
+}
+</style>
 </head>
-
 <body>
-
-<!-- ── Loading Overlay ──────────────────────────────────────────────────── -->
-<div id="loading-overlay">
-  <div class="loader-spinner"></div>
-  <span class="loader-title">Loading Python runtime…</span>
-  <span class="loader-sub">First visit takes ~5 seconds. Subsequent loads are cached by your browser.</span>
-</div>
-
-<!-- ── Inline Params Database (read by app.py) ──────────────────────────── -->
-<script type="application/json" id="params-data">
-[
-  { "key": "craft_name",                   "tab": "configuration", "section": "Craft & Identity",        "label": "Craft Name",                        "description": "The name of your quad as displayed in the OSD and Blackbox logs. No spaces — use underscores.", "type": "string" },
-
-  { "key": "dshot_bidir",                  "tab": "configuration", "section": "Motor & ESC",             "label": "Bidirectional DSHOT",               "description": "Enables RPM telemetry from ESCs for RPM-based filtering. Requires ESC firmware with bidir support (BLHeli_32, AM32, Bluejay).", "type": "readonly", "note": "Changing this requires matching ESC firmware support — edit manually if needed." },
-  { "key": "dshot_idle_value",             "tab": "configuration", "section": "Motor & ESC",             "label": "DSHOT Idle Value",                  "description": "Idle throttle signal sent to ESCs when armed but not flying. Higher values spin motors faster at idle. Typical range: 550-1100.", "type": "int", "range": [100, 2000] },
-  { "key": "motor_poles",                  "tab": "configuration", "section": "Motor & ESC",             "label": "Motor Poles",                       "description": "Number of magnetic poles in your motors. Critical for accurate RPM filtering. Most micro motors = 12 poles; larger 5 inch motors often = 14.", "type": "int", "range": [2, 28] },
-  { "key": "dyn_idle_min_rpm",             "tab": "configuration", "section": "Motor & ESC",             "label": "Dynamic Idle Min RPM",              "description": "Minimum RPM the FC will target during idle to keep motors spinning. Prevents stalls on fast descents. Set to 0 to disable.", "type": "int", "range": [0, 100] },
-  { "key": "motor_output_limit",           "tab": "configuration", "section": "Motor & ESC",             "label": "Motor Output Limit (%)",            "description": "Caps maximum motor output as a percentage. Useful for reducing power on overpowered builds or indoor flying.", "type": "int", "range": [1, 100], "unit": "%" },
-
-  { "key": "small_angle",                  "tab": "configuration", "section": "Flight Behaviour",        "label": "Small Angle Limit",                 "description": "Maximum tilt angle allowed for arming. Default 25 degrees prevents arming when tilted. Set to 180 to arm at any angle.", "type": "int", "range": [0, 180], "unit": "deg" },
-  { "key": "fpv_mix_degrees",              "tab": "configuration", "section": "Flight Behaviour",        "label": "FPV Camera Angle",                  "description": "Tilt angle of your FPV camera in degrees. Used with FPV Angle Mix so the horizon stays level in your feed during forward flight.", "type": "int", "range": [0, 90], "unit": "deg" },
-  { "key": "throttle_limit_type",          "tab": "configuration", "section": "Flight Behaviour",        "label": "Throttle Limit Type",               "description": "How throttle limiting is applied. SCALE compresses the full range into the limit. CLIP hard-cuts at the limit value.", "type": "enum", "options": ["OFF", "SCALE", "CLIP"] },
-  { "key": "throttle_limit_percent",       "tab": "configuration", "section": "Flight Behaviour",        "label": "Throttle Limit",                    "description": "Maximum throttle allowed as a percentage. Only active when Throttle Limit Type is not OFF.", "type": "int", "range": [1, 100], "unit": "%" },
-  { "key": "failsafe_delay",               "tab": "configuration", "section": "Flight Behaviour",        "label": "Failsafe Delay",                    "description": "Time with no RC signal before failsafe activates, in tenths of a second. Default 4 = 0.4s.", "type": "int", "range": [1, 200] },
-  { "key": "failsafe_recovery_delay",      "tab": "configuration", "section": "Flight Behaviour",        "label": "Failsafe Recovery Delay",           "description": "Time signal must be re-established before exiting failsafe. Default 20 = 2.0s.", "type": "int", "range": [1, 200] },
-
-  { "key": "beeper_dshot_beacon_tone",     "tab": "configuration", "section": "System",                  "label": "Beacon Motor Tone",                 "description": "Which motor beeper tone plays when using DSHOT beacon (find-my-quad). Values 1-5, each with a different pitch.", "type": "int", "range": [1, 5] },
-
-  { "key": "vbat_max_cell_voltage",        "tab": "power_battery", "section": "Cell Voltages",           "label": "Max Cell Voltage (mV)",             "description": "Maximum voltage per cell in millivolts. Standard LiPo = 420mV. HV LiPo = 430-450mV. Used to calculate battery percentage.", "type": "int", "range": [300, 500], "unit": "mV" },
-  { "key": "vbat_min_cell_voltage",        "tab": "power_battery", "section": "Cell Voltages",           "label": "Min Cell Voltage (mV)",             "description": "Minimum safe voltage per cell. Going below this damages cells permanently. Typical: 320-330mV for standard LiPo.", "type": "int", "range": [200, 400], "unit": "mV" },
-  { "key": "vbat_warning_cell_voltage",    "tab": "power_battery", "section": "Cell Voltages",           "label": "Warning Cell Voltage (mV)",         "description": "Voltage per cell that triggers the low-battery OSD warning. Set approximately 10-20mV above your minimum.", "type": "int", "range": [200, 450], "unit": "mV" },
-
-  { "key": "bat_capacity",                 "tab": "power_battery", "section": "Capacity & Compensation", "label": "Battery Capacity (mAh)",            "description": "Your battery capacity in milliamp-hours. Used to calculate remaining charge and flight time in the OSD.", "type": "int", "range": [0, 10000], "unit": "mAh" },
-  { "key": "vbat_sag_compensation",        "tab": "power_battery", "section": "Capacity & Compensation", "label": "Voltage Sag Compensation (%)",      "description": "Automatically boosts motor output to compensate for voltage drop under load. 100% = full compensation. Helps the quad feel consistent as battery drains.", "type": "int", "range": [0, 150], "unit": "%" },
-
-  { "key": "vbat_scale",                   "tab": "power_battery", "section": "Calibration (Hardware-Specific)", "label": "Battery Voltage Scale",     "description": "Voltage sensor calibration — unique to each FC unit. Must be verified with a multimeter. Never copy between builds.", "type": "readonly", "hardware_specific": true },
-  { "key": "ibata_scale",                  "tab": "power_battery", "section": "Calibration (Hardware-Specific)", "label": "Current Sensor Scale",      "description": "Current sensor calibration — unique to each FC unit. Calibrate against a known current draw. Never copy between builds.", "type": "readonly", "hardware_specific": true },
-
-  { "key": "p_roll",                       "tab": "pid_tuning",    "section": "Roll",                    "label": "Roll P",                            "description": "Proportional gain for roll. Controls how strongly the FC corrects roll errors. Too high = oscillations at steady throttle. Too low = mushy, unresponsive roll.", "type": "int", "range": [0, 200], "profile_scoped": true },
-  { "key": "i_roll",                       "tab": "pid_tuning",    "section": "Roll",                    "label": "Roll I",                            "description": "Integral gain for roll. Corrects sustained errors and helps hold angle against wind. Too high = slow wobble or I-windup.", "type": "int", "range": [0, 200], "profile_scoped": true },
-  { "key": "d_roll",                       "tab": "pid_tuning",    "section": "Roll",                    "label": "Roll D",                            "description": "Derivative gain for roll. Dampens overshoot and prop wash. Too high = hot motors and high-frequency buzzing oscillations.", "type": "int", "range": [0, 200], "profile_scoped": true },
-  { "key": "f_roll",                       "tab": "pid_tuning",    "section": "Roll",                    "label": "Roll F (Feedforward)",              "description": "Feedforward for roll. Adds anticipation to stick inputs for a snappier feel. Too high = overshoots on fast stick flicks.", "type": "int", "range": [0, 2000], "profile_scoped": true },
-  { "key": "d_min_roll",                   "tab": "pid_tuning",    "section": "Roll",                    "label": "Roll D Min",                        "description": "Minimum D for roll when idle. D scales dynamically between D-Min (at rest) and D (at full stick). Reduces motor heat during hover.", "type": "int", "range": [0, 150], "profile_scoped": true },
-  { "key": "d_max_roll",                   "tab": "pid_tuning",    "section": "Roll",                    "label": "Roll D Max",                        "description": "Maximum D for roll during fast stick inputs. D-Max kicks in during quick manoeuvres to dampen overshoot.", "type": "int", "range": [0, 150], "profile_scoped": true },
-
-  { "key": "p_pitch",                      "tab": "pid_tuning",    "section": "Pitch",                   "label": "Pitch P",                           "description": "Proportional gain for pitch. Controls pitch correction strength. Typically slightly higher than roll P on most quads.", "type": "int", "range": [0, 200], "profile_scoped": true },
-  { "key": "i_pitch",                      "tab": "pid_tuning",    "section": "Pitch",                   "label": "Pitch I",                           "description": "Integral gain for pitch. Corrects sustained pitch errors. Helps hold angle in forward flight.", "type": "int", "range": [0, 200], "profile_scoped": true },
-  { "key": "d_pitch",                      "tab": "pid_tuning",    "section": "Pitch",                   "label": "Pitch D",                           "description": "Derivative gain for pitch. Dampens pitch oscillations and prop wash.", "type": "int", "range": [0, 200], "profile_scoped": true },
-  { "key": "f_pitch",                      "tab": "pid_tuning",    "section": "Pitch",                   "label": "Pitch F (Feedforward)",             "description": "Feedforward for pitch. Adds anticipation to pitch stick inputs.", "type": "int", "range": [0, 2000], "profile_scoped": true },
-  { "key": "d_min_pitch",                  "tab": "pid_tuning",    "section": "Pitch",                   "label": "Pitch D Min",                       "description": "Minimum D for pitch when idle. Scales up during fast pitch inputs.", "type": "int", "range": [0, 150], "profile_scoped": true },
-  { "key": "d_max_pitch",                  "tab": "pid_tuning",    "section": "Pitch",                   "label": "Pitch D Max",                       "description": "Maximum D for pitch during fast stick inputs.", "type": "int", "range": [0, 150], "profile_scoped": true },
-
-  { "key": "p_yaw",                        "tab": "pid_tuning",    "section": "Yaw",                     "label": "Yaw P",                             "description": "Proportional gain for yaw. Controls yaw correction strength. Yaw typically runs lower P than roll/pitch due to propeller gyroscopic effects.", "type": "int", "range": [0, 200], "profile_scoped": true },
-  { "key": "i_yaw",                        "tab": "pid_tuning",    "section": "Yaw",                     "label": "Yaw I",                             "description": "Integral gain for yaw. Helps hold heading. Usually matched to roll I.", "type": "int", "range": [0, 200], "profile_scoped": true },
-  { "key": "f_yaw",                        "tab": "pid_tuning",    "section": "Yaw",                     "label": "Yaw F (Feedforward)",               "description": "Feedforward for yaw. Adds anticipation to yaw stick inputs.", "type": "int", "range": [0, 2000], "profile_scoped": true },
-  { "key": "d_max_gain",                   "tab": "pid_tuning",    "section": "Yaw",                     "label": "D Max Gain",                        "description": "Controls how quickly D scales from D-Min to D-Max during stick inputs. Higher = faster transition. Applied to all axes.", "type": "int", "range": [0, 100], "profile_scoped": true },
-
-  { "key": "iterm_limit",                  "tab": "pid_tuning",    "section": "Response Shaping",        "label": "I-Term Limit",                      "description": "Caps maximum I-term accumulation to prevent I-windup — where I keeps building when the quad cannot respond fast enough.", "type": "int", "range": [0, 500], "profile_scoped": true },
-  { "key": "iterm_relax_cutoff",           "tab": "pid_tuning",    "section": "Response Shaping",        "label": "I-Term Relax Cutoff (Hz)",          "description": "Reduces I-term during fast stick moves (flips/rolls) to prevent bounce-back. Lower cutoff = more relaxation.", "type": "int", "range": [1, 100], "unit": "Hz", "profile_scoped": true },
-  { "key": "throttle_boost",               "tab": "pid_tuning",    "section": "Response Shaping",        "label": "Throttle Boost",                    "description": "Boosts throttle response on fast inputs. Helps with prop wash on fast descents. Too high = bouncy throttle.", "type": "int", "range": [0, 100], "profile_scoped": true },
-  { "key": "thrust_linear",                "tab": "pid_tuning",    "section": "Response Shaping",        "label": "Thrust Linearisation (%)",          "description": "Compensates for the non-linear thrust curve of propellers. Helps PIDs feel consistent across the throttle range. Typical: 20-40%.", "type": "int", "range": [0, 150], "unit": "%", "profile_scoped": true },
-  { "key": "feedforward_jitter_factor",    "tab": "pid_tuning",    "section": "Response Shaping",        "label": "Feedforward Jitter Factor",         "description": "Smooths feedforward to reduce twitchiness from RC signal noise. Higher = more smoothing, less jitter amplification.", "type": "int", "range": [0, 20], "profile_scoped": true },
-  { "key": "pidsum_limit_yaw",             "tab": "pid_tuning",    "section": "Response Shaping",        "label": "Yaw PID Sum Limit",                 "description": "Caps the total yaw PID output. Prevents yaw from overpowering roll/pitch corrections during combined manoeuvres.", "type": "int", "range": [0, 1000], "profile_scoped": true },
-
-  { "key": "simplified_master_multiplier", "tab": "pid_tuning",    "section": "Simplified Tuning",       "label": "Master Multiplier (%)",             "description": "Scales all PIDs up or down proportionally. Quick way to make the tune more or less aggressive without touching individual values.", "type": "int", "range": [0, 200], "unit": "%", "profile_scoped": true },
-  { "key": "simplified_pi_gain",           "tab": "pid_tuning",    "section": "Simplified Tuning",       "label": "PI Gain (%)",                       "description": "Scales both P and I gains together relative to the master multiplier.", "type": "int", "range": [0, 200], "unit": "%", "profile_scoped": true },
-  { "key": "simplified_i_gain",            "tab": "pid_tuning",    "section": "Simplified Tuning",       "label": "I Gain (%)",                        "description": "Scales all I-term values independently.", "type": "int", "range": [0, 200], "unit": "%", "profile_scoped": true },
-  { "key": "simplified_d_gain",            "tab": "pid_tuning",    "section": "Simplified Tuning",       "label": "D Gain (%)",                        "description": "Scales all D-term values independently.", "type": "int", "range": [0, 200], "unit": "%", "profile_scoped": true },
-  { "key": "simplified_pitch_pi_gain",     "tab": "pid_tuning",    "section": "Simplified Tuning",       "label": "Pitch PI Gain (%)",                 "description": "Scales pitch P and I independently from roll. Useful if pitch/roll response feels unbalanced.", "type": "int", "range": [0, 200], "unit": "%", "profile_scoped": true },
-  { "key": "simplified_pitch_d_gain",      "tab": "pid_tuning",    "section": "Simplified Tuning",       "label": "Pitch D Gain (%)",                  "description": "Scales pitch D independently from roll D.", "type": "int", "range": [0, 200], "unit": "%", "profile_scoped": true },
-  { "key": "simplified_feedforward_gain",  "tab": "pid_tuning",    "section": "Simplified Tuning",       "label": "Feedforward Gain (%)",              "description": "Scales all feedforward values relative to the master multiplier.", "type": "int", "range": [0, 200], "unit": "%", "profile_scoped": true },
-  { "key": "simplified_d_max_gain",        "tab": "pid_tuning",    "section": "Simplified Tuning",       "label": "D Max Gain (%)",                    "description": "Scales the D-Max boost range (how much D increases during fast inputs).", "type": "int", "range": [0, 200], "unit": "%", "profile_scoped": true },
-  { "key": "simplified_dmax_gain",         "tab": "pid_tuning",    "section": "Simplified Tuning",       "label": "D Max Gain % (legacy BF)",          "description": "Legacy name for D Max Gain used in older Betaflight versions. Same function as simplified_d_max_gain.", "type": "int", "range": [0, 200], "unit": "%", "profile_scoped": true },
-
-  { "key": "simplified_gyro_filter_multiplier",  "tab": "filtering", "section": "Simplified Filtering", "label": "Gyro Filter Multiplier (%)",   "description": "Scales all gyro filter cutoff frequencies together. Higher = less filtering (sharper response, more noise). Lower = more filtering (smoother, more phase delay).", "type": "int", "range": [0, 200], "unit": "%" },
-  { "key": "simplified_dterm_filter_multiplier", "tab": "filtering", "section": "Simplified Filtering", "label": "D-Term Filter Multiplier (%)", "description": "Scales D-term filter cutoff frequencies. Higher = less D-term filtering. Lower = more filtering but slower D-term response.", "type": "int", "range": [0, 200], "unit": "%" },
-
-  { "key": "gyro_lpf1_static_hz",          "tab": "filtering",     "section": "Gyro Filtering",          "label": "Gyro LPF1 Static (Hz)",            "description": "First gyro low-pass filter cutoff frequency. Set to 0 to use dynamic mode. Lower = more noise rejection, more phase delay.", "type": "int", "range": [0, 1000], "unit": "Hz" },
-  { "key": "gyro_lpf1_dyn_min_hz",         "tab": "filtering",     "section": "Gyro Filtering",          "label": "Gyro LPF1 Dynamic Min (Hz)",        "description": "Minimum cutoff for dynamic gyro LPF1. Filter will not go below this frequency.", "type": "int", "range": [0, 1000], "unit": "Hz" },
-  { "key": "gyro_lpf1_dyn_max_hz",         "tab": "filtering",     "section": "Gyro Filtering",          "label": "Gyro LPF1 Dynamic Max (Hz)",        "description": "Maximum cutoff for dynamic gyro LPF1. Filter will not go above this frequency.", "type": "int", "range": [0, 1000], "unit": "Hz" },
-  { "key": "gyro_lpf2_static_hz",          "tab": "filtering",     "section": "Gyro Filtering",          "label": "Gyro LPF2 Static (Hz)",            "description": "Second gyro low-pass filter. Adds an extra noise rejection stage after LPF1. Set to 0 to disable.", "type": "int", "range": [0, 1000], "unit": "Hz" },
-  { "key": "gyro_lpf2_type",               "tab": "filtering",     "section": "Gyro Filtering",          "label": "Gyro LPF2 Type",                   "description": "Filter shape for gyro LPF2. PT1 = gentle rolloff. PT2/PT3 = steeper with more phase delay. BIQUAD = steepest.", "type": "enum", "options": ["PT1", "PT2", "PT3", "BIQUAD"] },
-
-  { "key": "dterm_lpf1_static_hz",         "tab": "filtering",     "section": "D-Term Filtering",        "label": "D-Term LPF1 Static (Hz)",          "description": "First D-term low-pass filter cutoff. D-term is inherently noisy — this is its primary noise filter. Set to 0 for dynamic mode.", "type": "int", "range": [0, 1000], "unit": "Hz" },
-  { "key": "dterm_lpf1_dyn_min_hz",        "tab": "filtering",     "section": "D-Term Filtering",        "label": "D-Term LPF1 Dynamic Min (Hz)",     "description": "Minimum cutoff for dynamic D-term LPF1.", "type": "int", "range": [0, 1000], "unit": "Hz" },
-  { "key": "dterm_lpf1_dyn_max_hz",        "tab": "filtering",     "section": "D-Term Filtering",        "label": "D-Term LPF1 Dynamic Max (Hz)",     "description": "Maximum cutoff for dynamic D-term LPF1.", "type": "int", "range": [0, 1000], "unit": "Hz" },
-  { "key": "dterm_lpf1_dyn_expo",          "tab": "filtering",     "section": "D-Term Filtering",        "label": "D-Term LPF1 Dynamic Expo",         "description": "Shapes the dynamic D-term filter curve. Higher = filter spends more time at lower frequencies (more filtering at rest).", "type": "int", "range": [0, 10] },
-  { "key": "dterm_lpf2_static_hz",         "tab": "filtering",     "section": "D-Term Filtering",        "label": "D-Term LPF2 Static (Hz)",          "description": "Second D-term low-pass filter. Additional noise rejection after LPF1.", "type": "int", "range": [0, 1000], "unit": "Hz" },
-
-  { "key": "dyn_notch_count",              "tab": "filtering",     "section": "Dynamic Notch Filter",    "label": "Dynamic Notch Count",              "description": "Number of dynamic notch filters active simultaneously (0-4). More notches = better noise targeting but more phase delay.", "type": "int", "range": [0, 4] },
-  { "key": "dyn_notch_min_hz",             "tab": "filtering",     "section": "Dynamic Notch Filter",    "label": "Dynamic Notch Min (Hz)",           "description": "Lowest frequency the dynamic notch will track. Set based on your lowest expected motor noise at low RPM.", "type": "int", "range": [0, 1000], "unit": "Hz" },
-  { "key": "dyn_notch_max_hz",             "tab": "filtering",     "section": "Dynamic Notch Filter",    "label": "Dynamic Notch Max (Hz)",           "description": "Highest frequency the dynamic notch will track.", "type": "int", "range": [0, 1000], "unit": "Hz" },
-  { "key": "dyn_notch_q",                  "tab": "filtering",     "section": "Dynamic Notch Filter",    "label": "Dynamic Notch Q Factor",           "description": "Bandwidth of each notch filter. Lower Q = wider notch (catches more noise, removes more signal). Higher Q = narrower, more precise.", "type": "int", "range": [1, 1000] },
-
-  { "key": "rpm_filter_weights",           "tab": "filtering",     "section": "RPM Filter",              "label": "RPM Filter Weights (1st,2nd,3rd)", "description": "Strength of RPM notch filters for motor harmonics. Format: 100,20,100. Set to 0,0,0 to disable all. Requires bidirectional DSHOT.", "type": "string" },
-  { "key": "rpm_filter_fade_range_hz",     "tab": "filtering",     "section": "RPM Filter",              "label": "RPM Filter Fade Range (Hz)",       "description": "Frequency range over which RPM notch filters fade in from 0 Hz. Prevents targeting very low RPM noise at idle.", "type": "int", "range": [0, 1000], "unit": "Hz" },
-
-  { "key": "yaw_lowpass_hz",               "tab": "filtering",     "section": "Misc Filtering",          "label": "Yaw Lowpass (Hz)",                 "description": "Low-pass filter on yaw PID output. Reduces yaw noise and twitchiness. Set to 0 to disable.", "type": "int", "range": [0, 500], "unit": "Hz" },
-
-  { "key": "deadband",                     "tab": "receiver",      "section": "Stick Sensitivity",       "label": "RC Deadband",                      "description": "Stick deadband around centre for roll and pitch in microseconds. Inputs within this range are treated as centred. Helps with drifty sticks.", "type": "int", "range": [0, 32] },
-  { "key": "yaw_deadband",                 "tab": "receiver",      "section": "Stick Sensitivity",       "label": "Yaw Deadband",                     "description": "Stick deadband around centre for the yaw axis only. Same concept as RC Deadband but for yaw.", "type": "int", "range": [0, 32] },
-
-  { "key": "expresslrs_model_id",          "tab": "receiver",      "section": "ExpressLRS (SPI)",        "label": "ELRS Model ID",                    "description": "Model Match ID for ExpressLRS. When Model Match is enabled on your TX, the RX only pairs with a TX sending this ID. Set to 0 to disable Model Match.", "type": "int", "range": [0, 63] },
-  { "key": "expresslrs_rate_index",        "tab": "receiver",      "section": "ExpressLRS (SPI)",        "label": "ELRS Packet Rate",                 "description": "Default RF packet rate index for ELRS SPI receivers. Lower index = higher frequency = lower latency but shorter range.", "type": "enum", "options": ["0 (500Hz)", "1 (250Hz)", "2 (150Hz)", "3 (100Hz)", "4 (50Hz)", "5 (25Hz)"] },
-
-  { "key": "vtx_band",                     "tab": "vtx",           "section": "Channel & Power",         "label": "VTX Band",                         "description": "Video transmitter frequency band. 1=Boscam A, 2=Boscam B, 3=Boscam E, 4=Fatshark/Airwave, 5=Race Band. Check your goggle's supported bands.", "type": "int", "range": [0, 8] },
-  { "key": "vtx_channel",                  "tab": "vtx",           "section": "Channel & Power",         "label": "VTX Channel",                      "description": "Video transmitter channel within the selected band (1-8). Coordinate with other pilots to avoid frequency clashes.", "type": "int", "range": [1, 8] },
-  { "key": "vtx_power",                    "tab": "vtx",           "section": "Channel & Power",         "label": "VTX Power Level",                  "description": "Transmit power index. Specific power levels (mW) depend on your VTX model. 1 = lowest. Always fly at the lowest power that gives reliable video.", "type": "int", "range": [0, 7] },
-  { "key": "vtx_freq",                     "tab": "vtx",           "section": "Channel & Power",         "label": "VTX Frequency (MHz)",              "description": "Output frequency derived from your band and channel selection. Read-only reference.", "type": "readonly" },
-
-
-  { "key": "rateprofile_name",             "tab": "rates",         "section": "Profile Identity",        "label": "Rate Profile Name",                "description": "Display name for this rate profile shown in the OSD rate profile indicator.", "type": "string", "rate_scoped": true },
-  { "key": "rates_type",                   "tab": "rates",         "section": "Profile Identity",        "label": "Rates Type",                       "description": "Rate calculation method. BETAFLIGHT = classic RC Rate / Super Rate / Expo system. ACTUAL = set max degrees per second directly. QUICK = simplified curve.", "type": "enum", "options": ["BETAFLIGHT", "KISS", "ACTUAL", "QUICK"], "rate_scoped": true },
-
-  { "key": "roll_rc_rate",                 "tab": "rates",         "section": "Roll",                    "label": "Roll RC Rate",                     "description": "Base roll rate multiplier. Controls overall roll speed. Higher = faster rolls for the same stick input.", "type": "int", "range": [1, 255], "rate_scoped": true },
-  { "key": "roll_srate",                   "tab": "rates",         "section": "Roll",                    "label": "Roll Super Rate",                  "description": "Exponential roll rate boost at full stick. 0 = linear. Higher = faster at full deflection, slower near centre.", "type": "int", "range": [0, 100], "rate_scoped": true },
-  { "key": "roll_expo",                    "tab": "rates",         "section": "Roll",                    "label": "Roll Expo",                        "description": "Softens roll stick feel around centre. Higher = more sluggish centre feel, better precision for slow filming moves. 0 = no expo.", "type": "int", "range": [0, 100], "rate_scoped": true },
-
-  { "key": "pitch_rc_rate",                "tab": "rates",         "section": "Pitch",                   "label": "Pitch RC Rate",                    "description": "Base pitch rate. Usually matched to Roll RC Rate for balanced feel.", "type": "int", "range": [1, 255], "rate_scoped": true },
-  { "key": "pitch_srate",                  "tab": "rates",         "section": "Pitch",                   "label": "Pitch Super Rate",                 "description": "Exponential pitch rate boost at full stick.", "type": "int", "range": [0, 100], "rate_scoped": true },
-  { "key": "pitch_expo",                   "tab": "rates",         "section": "Pitch",                   "label": "Pitch Expo",                       "description": "Softens pitch feel around centre.", "type": "int", "range": [0, 100], "rate_scoped": true },
-
-  { "key": "yaw_rc_rate",                  "tab": "rates",         "section": "Yaw",                     "label": "Yaw RC Rate",                      "description": "Base yaw rate. Usually set lower than roll/pitch for more controlled yaw inputs.", "type": "int", "range": [1, 255], "rate_scoped": true },
-  { "key": "yaw_srate",                    "tab": "rates",         "section": "Yaw",                     "label": "Yaw Super Rate",                   "description": "Exponential yaw rate boost at full stick.", "type": "int", "range": [0, 100], "rate_scoped": true },
-  { "key": "yaw_expo",                     "tab": "rates",         "section": "Yaw",                     "label": "Yaw Expo",                         "description": "Softens yaw feel around centre.", "type": "int", "range": [0, 100], "rate_scoped": true },
-
-  { "key": "thr_mid",                      "tab": "rates",         "section": "Throttle",                "label": "Hover Throttle Mid (%)",           "description": "BF 4.2+ only: internal hover throttle midpoint reference used by altitude-aware modes (EZ Landing, turtle mode). Does NOT affect regular throttle stick feel or response curve in acro/freestyle flying.", "type": "int", "range": [0, 100], "unit": "%", "rate_scoped": true },
-  { "key": "thr_hover",                    "tab": "rates",         "section": "Throttle",                "label": "Hover Throttle (%)",               "description": "Estimated throttle percentage at which your quad hovers. Used by EZ Landing, turtle mode recovery, and similar altitude-aware features to determine a throttle baseline. Has no effect in pure acro flying.", "type": "int", "range": [0, 100], "unit": "%", "rate_scoped": true }
-]
-</script>
 
 <!-- ── Header ────────────────────────────────────────────────────────────── -->
 <header>
@@ -155,7 +159,7 @@
 
 <main>
 
-  <!-- ── Import ──────────────────────────────────────────────────────────── -->
+  <!-- ── Import ────────────────────────────────────────────────────────── -->
   <section class="card">
     <h2>Import Config</h2>
     <div class="import-row">
@@ -166,26 +170,25 @@
         <input type="file" id="file-upload" accept=".txt" style="display:none">
       </div>
       <div class="import-divider">or</div>
-      <textarea id="paste-area" placeholder="Paste your Betaflight CLI text here…"></textarea>
+      <textarea id="paste-area" placeholder="Paste your Betaflight CLI text here..."></textarea>
     </div>
     <div class="import-actions">
       <button id="load-btn" class="btn btn-primary">&#x2699; Load Config</button>
     </div>
     <div id="import-error" class="error-msg" style="display:none"></div>
+    <div id="import-success" class="success-msg" style="display:none"></div>
   </section>
 
-  <!-- ── Config Info Bar ─────────────────────────────────────────────────── -->
+  <!-- ── Config Info Bar ───────────────────────────────────────────────── -->
   <div id="config-info" style="display:none">
-    <span class="info-badge" id="info-version">BF <span>—</span></span>
-    <span class="info-badge" id="info-craft">Craft: <span>—</span></span>
-    <span class="info-badge" id="info-pid-profiles">PID Profiles: <span>—</span></span>
-    <span class="info-badge" id="info-rate-profiles">Rate Profiles: <span>—</span></span>
+    <span class="info-badge" id="info-version">BF <span>&mdash;</span></span>
+    <span class="info-badge" id="info-craft">Craft: <span>&mdash;</span></span>
+    <span class="info-badge" id="info-pid-profiles">PID Profiles: <span>&mdash;</span></span>
+    <span class="info-badge" id="info-rate-profiles">Rate Profiles: <span>&mdash;</span></span>
   </div>
 
-  <!-- ── Editor ──────────────────────────────────────────────────────────── -->
+  <!-- ── Editor ────────────────────────────────────────────────────────── -->
   <section id="editor-section" style="display:none">
-
-    <!-- Tab Navigation -->
     <nav class="tab-nav">
       <button class="tab-btn active" data-tab="configuration">Configuration</button>
       <button class="tab-btn" data-tab="power_battery">Power &amp; Battery</button>
@@ -197,66 +200,54 @@
       <button class="tab-btn" data-tab="adjustments">Adjustments</button>
     </nav>
 
-    <!-- Configuration Tab -->
     <div class="tab-panel active" id="tab-configuration">
       <div class="fields-grid" id="fields-configuration"></div>
     </div>
 
-    <!-- Power & Battery Tab -->
     <div class="tab-panel" id="tab-power_battery">
       <div class="fields-grid" id="fields-power_battery"></div>
     </div>
 
-    <!-- PID Tuning Tab -->
     <div class="tab-panel" id="tab-pid_tuning">
-      <!-- Profile selector row -->
-      <div class="profile-selector-row" id="profile-selector-row">
+      <div class="profile-selector-row" id="profile-selector-row" style="display:none">
         <label>Editing PID Profile:</label>
         <select id="pid-profile-select"></select>
-        <span class="profile-note">Only the selected profile is updated on export. Other profiles are preserved unchanged.</span>
+        <span class="profile-note">Only the selected profile is updated on export. Others are preserved.</span>
         <label style="margin-left:16px">Rate Profile:</label>
         <select id="rate-profile-select"></select>
       </div>
-
       <div class="fields-grid" id="fields-pid_tuning"></div>
-
-      <!-- Rates sub-section divider -->
-      <div class="fields-grid" style="margin-top:24px">
+      <div class="fields-grid" style="margin-top:8px">
         <div class="tab-sub-divider"></div>
         <div class="tab-sub-title">Rates</div>
       </div>
       <div class="fields-grid" id="fields-rates"></div>
     </div>
 
-    <!-- Filtering Tab -->
     <div class="tab-panel" id="tab-filtering">
       <div class="fields-grid" id="fields-filtering"></div>
     </div>
 
-    <!-- Receiver Tab -->
     <div class="tab-panel" id="tab-receiver">
       <div class="fields-grid" id="fields-receiver"></div>
       <div class="callout callout-info" style="margin-top:20px">
-        <strong>ℹ ELRS Binding Phrase</strong>
-        The ELRS binding phrase is <strong>not stored in the Betaflight CLI</strong>. It lives in the ELRS
-        firmware on your receiver and is configured via the ELRS Configurator or your transmitter's
-        ELRS LUA script. You cannot set or copy it through this tool.
+        <strong>&#x2139; ELRS Binding Phrase</strong>
+        The ELRS binding phrase is <strong>not stored in the Betaflight CLI</strong>. It lives in
+        the ELRS firmware on your receiver and is configured via the ELRS Configurator or your
+        transmitter&rsquo;s ELRS LUA script. You cannot set or copy it through this tool.
       </div>
     </div>
 
-    <!-- Video Transmitter Tab -->
     <div class="tab-panel" id="tab-vtx">
       <div class="fields-grid" id="fields-vtx"></div>
     </div>
 
-    <!-- Modes Tab -->
     <div class="tab-panel" id="tab-modes">
-      <div class="callout callout-warn" style="margin-bottom:16px">
-        <strong>⚠ Mode Assignments</strong>
-        If you paste mode assignments below, they will <strong>replace</strong> the
-        <code>mode_range</code> lines from your imported config on export. Leave blank to keep
-        the original assignments. Use this to apply your RC switch layout to a config that
-        doesn't already have your assignments.
+      <div class="callout callout-warn">
+        <strong>&#x26A0; Mode Assignments</strong>
+        If you paste mode assignments below they will <strong>replace</strong> the
+        <code>mode_range</code> lines from your imported config on export.
+        Leave blank to keep the original assignments.
       </div>
       <div class="raw-paste-section">
         <label for="mode-range-paste">mode_range lines (one per line):</label>
@@ -265,13 +256,12 @@
       </div>
     </div>
 
-    <!-- Adjustments Tab -->
     <div class="tab-panel" id="tab-adjustments">
-      <div class="callout callout-warn" style="margin-bottom:16px">
-        <strong>⚠ Adjustment Ranges</strong>
-        If you paste adjustment ranges below, they will <strong>replace</strong> the
-        <code>adjrange</code> lines from your imported config on export. Leave blank to keep
-        the original assignments.
+      <div class="callout callout-warn">
+        <strong>&#x26A0; Adjustment Ranges</strong>
+        If you paste adjustment ranges below they will <strong>replace</strong> the
+        <code>adjrange</code> lines from your imported config on export.
+        Leave blank to keep the original assignments.
       </div>
       <div class="raw-paste-section">
         <label for="adjrange-paste">adjrange lines (one per line):</label>
@@ -280,9 +270,9 @@
       </div>
     </div>
 
-  </section><!-- /editor -->
+  </section>
 
-  <!-- ── Export ──────────────────────────────────────────────────────────── -->
+  <!-- ── Export ────────────────────────────────────────────────────────── -->
   <section id="export-section" class="card" style="display:none">
     <h2>Export Config</h2>
     <div class="export-row">
@@ -295,12 +285,801 @@
 
 <footer>
   Community tool for FPV pilots &bull;
-  Always verify settings on your own hardware before flying &bull;
+  Always verify settings on your hardware before flying &bull;
   <a href="https://github.com/FPVTHINGS/Betaflight-Config-Editor" target="_blank" rel="noopener">GitHub</a>
+  &bull;
+  <a href="https://github.com/FPVTHINGS/Betaflight-Configs" target="_blank" rel="noopener">Community Configs</a>
 </footer>
 
-<!-- ── PyScript ──────────────────────────────────────────────────────────── -->
-<script type="py" src="app.py"></script>
+<script>
+'use strict';
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   PARAMS DATABASE
+   Each entry: key, tab, section, label, description, type,
+               range (int/float), options (enum), unit, note,
+               hardware_specific, profile_scoped, rate_scoped
+   ═══════════════════════════════════════════════════════════════════════════ */
+const PARAMS = [
+  // ── Configuration : Craft & Identity ────────────────────────────────────
+  { key:'craft_name', tab:'configuration', section:'Craft & Identity',
+    label:'Craft Name', type:'string',
+    description:'The name of your quad shown in the OSD and Blackbox logs. No spaces - use underscores.' },
+
+  // ── Configuration : Motor & ESC ──────────────────────────────────────────
+  { key:'dshot_bidir', tab:'configuration', section:'Motor & ESC',
+    label:'Bidirectional DSHOT', type:'readonly',
+    note:'Changing this requires matching ESC firmware support - edit manually if needed.',
+    description:'Enables RPM telemetry from ESCs for RPM-based filtering. Requires bidir-capable ESC firmware (BLHeli_32, AM32, Bluejay).' },
+  { key:'dshot_idle_value', tab:'configuration', section:'Motor & ESC',
+    label:'DSHOT Idle Value', type:'int', range:[100,2000],
+    description:'Idle throttle signal sent to ESCs when armed but not flying. Higher = motors spin faster at idle. Typical range: 550-1100.' },
+  { key:'motor_poles', tab:'configuration', section:'Motor & ESC',
+    label:'Motor Poles', type:'int', range:[2,28],
+    description:'Number of magnetic poles in your motors. Critical for accurate RPM filtering. Most micro motors = 12; larger 5-inch motors often = 14.' },
+  { key:'dyn_idle_min_rpm', tab:'configuration', section:'Motor & ESC',
+    label:'Dynamic Idle Min RPM', type:'int', range:[0,100],
+    description:'Minimum RPM the FC targets during idle to keep motors spinning. Prevents stalls on fast descents. Set to 0 to disable.' },
+  { key:'motor_output_limit', tab:'configuration', section:'Motor & ESC',
+    label:'Motor Output Limit', type:'int', range:[1,100], unit:'%',
+    description:'Caps maximum motor output as a percentage. Useful for reducing power on overpowered builds or indoor flying.' },
+
+  // ── Configuration : Flight Behaviour ────────────────────────────────────
+  { key:'small_angle', tab:'configuration', section:'Flight Behaviour',
+    label:'Small Angle Limit', type:'int', range:[0,180], unit:'deg',
+    description:'Maximum tilt angle allowed for arming. Default 25 deg prevents arming when tilted. Set to 180 to arm at any angle.' },
+  { key:'fpv_mix_degrees', tab:'configuration', section:'Flight Behaviour',
+    label:'FPV Camera Angle', type:'int', range:[0,90], unit:'deg',
+    description:'Tilt angle of your FPV camera. Used with FPV Angle Mix so the horizon stays level in your feed during forward flight.' },
+  { key:'throttle_limit_type', tab:'configuration', section:'Flight Behaviour',
+    label:'Throttle Limit Type', type:'enum', options:['OFF','SCALE','CLIP'],
+    description:'How throttle limiting is applied. SCALE compresses the full range into the limit. CLIP hard-cuts at the limit value.' },
+  { key:'throttle_limit_percent', tab:'configuration', section:'Flight Behaviour',
+    label:'Throttle Limit', type:'int', range:[1,100], unit:'%',
+    description:'Maximum throttle allowed as a percentage. Only active when Throttle Limit Type is not OFF.' },
+  { key:'failsafe_delay', tab:'configuration', section:'Flight Behaviour',
+    label:'Failsafe Delay', type:'int', range:[1,200],
+    description:'Time with no RC signal before failsafe activates, in tenths of a second. Default 4 = 0.4s.' },
+  { key:'failsafe_recovery_delay', tab:'configuration', section:'Flight Behaviour',
+    label:'Failsafe Recovery Delay', type:'int', range:[1,200],
+    description:'Time signal must be re-established before exiting failsafe. Default 20 = 2.0s.' },
+
+  // ── Configuration : System ───────────────────────────────────────────────
+  { key:'beeper_dshot_beacon_tone', tab:'configuration', section:'System',
+    label:'Beacon Motor Tone', type:'int', range:[1,5],
+    description:'Which motor beeper tone plays when using DSHOT beacon (find-my-quad). Values 1-5, each with a different pitch.' },
+
+  // ── Power & Battery : Cell Voltages ─────────────────────────────────────
+  { key:'vbat_max_cell_voltage', tab:'power_battery', section:'Cell Voltages',
+    label:'Max Cell Voltage (mV)', type:'int', range:[300,500], unit:'mV',
+    description:'Maximum voltage per cell in millivolts. Standard LiPo = 420mV. HV LiPo = 430-450mV. Used to calculate battery percentage.' },
+  { key:'vbat_min_cell_voltage', tab:'power_battery', section:'Cell Voltages',
+    label:'Min Cell Voltage (mV)', type:'int', range:[200,400], unit:'mV',
+    description:'Minimum safe voltage per cell. Going below this damages cells permanently. Typical: 320-330mV for standard LiPo.' },
+  { key:'vbat_warning_cell_voltage', tab:'power_battery', section:'Cell Voltages',
+    label:'Warning Cell Voltage (mV)', type:'int', range:[200,450], unit:'mV',
+    description:'Voltage per cell that triggers the low-battery OSD warning. Set about 10-20mV above your minimum.' },
+
+  // ── Power & Battery : Capacity & Compensation ───────────────────────────
+  { key:'bat_capacity', tab:'power_battery', section:'Capacity & Compensation',
+    label:'Battery Capacity (mAh)', type:'int', range:[0,10000], unit:'mAh',
+    description:'Your battery capacity in milliamp-hours. Used to calculate remaining charge and flight time in the OSD.' },
+  { key:'vbat_sag_compensation', tab:'power_battery', section:'Capacity & Compensation',
+    label:'Voltage Sag Compensation', type:'int', range:[0,150], unit:'%',
+    description:'Automatically boosts motor output to compensate for voltage drop under load. 100% = full compensation. Helps the quad feel consistent as battery drains.' },
+
+  // ── Power & Battery : Calibration ───────────────────────────────────────
+  { key:'vbat_scale', tab:'power_battery', section:'Calibration (Hardware-Specific)',
+    label:'Battery Voltage Scale', type:'readonly', hardware_specific:true,
+    description:'Voltage sensor calibration - unique to each FC unit. Must be verified with a multimeter. Never copy between builds.' },
+  { key:'ibata_scale', tab:'power_battery', section:'Calibration (Hardware-Specific)',
+    label:'Current Sensor Scale', type:'readonly', hardware_specific:true,
+    description:'Current sensor calibration - unique to each FC unit. Calibrate against a known current draw. Never copy between builds.' },
+
+  // ── PID Tuning : Roll ────────────────────────────────────────────────────
+  { key:'p_roll', tab:'pid_tuning', section:'Roll',
+    label:'Roll P', type:'int', range:[0,200], profile_scoped:true,
+    description:'Proportional gain for roll. Controls how strongly the FC corrects roll errors. Too high = oscillations at steady throttle. Too low = mushy, unresponsive roll.' },
+  { key:'i_roll', tab:'pid_tuning', section:'Roll',
+    label:'Roll I', type:'int', range:[0,200], profile_scoped:true,
+    description:'Integral gain for roll. Corrects sustained errors and helps hold angle against wind. Too high = slow wobble or I-windup.' },
+  { key:'d_roll', tab:'pid_tuning', section:'Roll',
+    label:'Roll D', type:'int', range:[0,200], profile_scoped:true,
+    description:'Derivative gain for roll. Dampens overshoot and prop wash. Too high = hot motors and high-frequency buzzing oscillations.' },
+  { key:'f_roll', tab:'pid_tuning', section:'Roll',
+    label:'Roll F (Feedforward)', type:'int', range:[0,2000], profile_scoped:true,
+    description:'Feedforward for roll. Adds anticipation to stick inputs for a snappier feel. Too high = overshoots on fast stick flicks.' },
+  { key:'d_min_roll', tab:'pid_tuning', section:'Roll',
+    label:'Roll D Min', type:'int', range:[0,150], profile_scoped:true,
+    description:'Minimum D for roll when idle. D scales dynamically between D-Min (at rest) and D (at full stick). Reduces motor heat during hover.' },
+  { key:'d_max_roll', tab:'pid_tuning', section:'Roll',
+    label:'Roll D Max', type:'int', range:[0,150], profile_scoped:true,
+    description:'Maximum D for roll during fast stick inputs. D-Max kicks in during quick manoeuvres to dampen overshoot.' },
+
+  // ── PID Tuning : Pitch ───────────────────────────────────────────────────
+  { key:'p_pitch', tab:'pid_tuning', section:'Pitch',
+    label:'Pitch P', type:'int', range:[0,200], profile_scoped:true,
+    description:'Proportional gain for pitch. Controls pitch correction strength. Typically slightly higher than roll P on most quads.' },
+  { key:'i_pitch', tab:'pid_tuning', section:'Pitch',
+    label:'Pitch I', type:'int', range:[0,200], profile_scoped:true,
+    description:'Integral gain for pitch. Corrects sustained pitch errors. Helps hold angle in forward flight.' },
+  { key:'d_pitch', tab:'pid_tuning', section:'Pitch',
+    label:'Pitch D', type:'int', range:[0,200], profile_scoped:true,
+    description:'Derivative gain for pitch. Dampens pitch oscillations and prop wash.' },
+  { key:'f_pitch', tab:'pid_tuning', section:'Pitch',
+    label:'Pitch F (Feedforward)', type:'int', range:[0,2000], profile_scoped:true,
+    description:'Feedforward for pitch. Adds anticipation to pitch stick inputs.' },
+  { key:'d_min_pitch', tab:'pid_tuning', section:'Pitch',
+    label:'Pitch D Min', type:'int', range:[0,150], profile_scoped:true,
+    description:'Minimum D for pitch when idle. Scales up during fast pitch inputs.' },
+  { key:'d_max_pitch', tab:'pid_tuning', section:'Pitch',
+    label:'Pitch D Max', type:'int', range:[0,150], profile_scoped:true,
+    description:'Maximum D for pitch during fast stick inputs.' },
+
+  // ── PID Tuning : Yaw ─────────────────────────────────────────────────────
+  { key:'p_yaw', tab:'pid_tuning', section:'Yaw',
+    label:'Yaw P', type:'int', range:[0,200], profile_scoped:true,
+    description:'Proportional gain for yaw. Controls yaw correction strength. Yaw typically runs lower P than roll/pitch due to propeller gyroscopic effects.' },
+  { key:'i_yaw', tab:'pid_tuning', section:'Yaw',
+    label:'Yaw I', type:'int', range:[0,200], profile_scoped:true,
+    description:'Integral gain for yaw. Helps hold heading. Usually matched to roll I.' },
+  { key:'f_yaw', tab:'pid_tuning', section:'Yaw',
+    label:'Yaw F (Feedforward)', type:'int', range:[0,2000], profile_scoped:true,
+    description:'Feedforward for yaw. Adds anticipation to yaw stick inputs.' },
+  { key:'d_max_gain', tab:'pid_tuning', section:'Yaw',
+    label:'D Max Gain', type:'int', range:[0,100], profile_scoped:true,
+    description:'Controls how quickly D scales from D-Min to D-Max during stick inputs. Higher = faster transition. Applied to all axes.' },
+
+  // ── PID Tuning : Response Shaping ────────────────────────────────────────
+  { key:'iterm_limit', tab:'pid_tuning', section:'Response Shaping',
+    label:'I-Term Limit', type:'int', range:[0,500], profile_scoped:true,
+    description:'Caps maximum I-term accumulation to prevent I-windup - where I keeps building when the quad cannot respond fast enough.' },
+  { key:'iterm_relax_cutoff', tab:'pid_tuning', section:'Response Shaping',
+    label:'I-Term Relax Cutoff (Hz)', type:'int', range:[1,100], unit:'Hz', profile_scoped:true,
+    description:'Reduces I-term during fast stick moves (flips/rolls) to prevent bounce-back. Lower cutoff = more relaxation.' },
+  { key:'throttle_boost', tab:'pid_tuning', section:'Response Shaping',
+    label:'Throttle Boost', type:'int', range:[0,100], profile_scoped:true,
+    description:'Boosts throttle response on fast inputs. Helps with prop wash on fast descents. Too high = bouncy throttle.' },
+  { key:'thrust_linear', tab:'pid_tuning', section:'Response Shaping',
+    label:'Thrust Linearisation', type:'int', range:[0,150], unit:'%', profile_scoped:true,
+    description:'Compensates for the non-linear thrust curve of propellers. Helps PIDs feel consistent across the throttle range. Typical: 20-40%.' },
+  { key:'feedforward_jitter_factor', tab:'pid_tuning', section:'Response Shaping',
+    label:'Feedforward Jitter Factor', type:'int', range:[0,20], profile_scoped:true,
+    description:'Smooths feedforward to reduce twitchiness from RC signal noise. Higher = more smoothing, less jitter amplification.' },
+  { key:'pidsum_limit_yaw', tab:'pid_tuning', section:'Response Shaping',
+    label:'Yaw PID Sum Limit', type:'int', range:[0,1000], profile_scoped:true,
+    description:'Caps the total yaw PID output. Prevents yaw from overpowering roll/pitch corrections during combined manoeuvres.' },
+
+  // ── PID Tuning : Simplified Tuning ───────────────────────────────────────
+  { key:'simplified_master_multiplier', tab:'pid_tuning', section:'Simplified Tuning',
+    label:'Master Multiplier', type:'int', range:[0,200], unit:'%', profile_scoped:true,
+    description:'Scales all PIDs up or down proportionally. Quick way to make the tune more or less aggressive without touching individual values.' },
+  { key:'simplified_pi_gain', tab:'pid_tuning', section:'Simplified Tuning',
+    label:'PI Gain', type:'int', range:[0,200], unit:'%', profile_scoped:true,
+    description:'Scales both P and I gains together relative to the master multiplier.' },
+  { key:'simplified_i_gain', tab:'pid_tuning', section:'Simplified Tuning',
+    label:'I Gain', type:'int', range:[0,200], unit:'%', profile_scoped:true,
+    description:'Scales all I-term values independently.' },
+  { key:'simplified_d_gain', tab:'pid_tuning', section:'Simplified Tuning',
+    label:'D Gain', type:'int', range:[0,200], unit:'%', profile_scoped:true,
+    description:'Scales all D-term values independently.' },
+  { key:'simplified_pitch_pi_gain', tab:'pid_tuning', section:'Simplified Tuning',
+    label:'Pitch PI Gain', type:'int', range:[0,200], unit:'%', profile_scoped:true,
+    description:'Scales pitch P and I independently from roll. Useful if pitch/roll response feels unbalanced.' },
+  { key:'simplified_pitch_d_gain', tab:'pid_tuning', section:'Simplified Tuning',
+    label:'Pitch D Gain', type:'int', range:[0,200], unit:'%', profile_scoped:true,
+    description:'Scales pitch D independently from roll D.' },
+  { key:'simplified_feedforward_gain', tab:'pid_tuning', section:'Simplified Tuning',
+    label:'Feedforward Gain', type:'int', range:[0,200], unit:'%', profile_scoped:true,
+    description:'Scales all feedforward values relative to the master multiplier.' },
+  { key:'simplified_d_max_gain', tab:'pid_tuning', section:'Simplified Tuning',
+    label:'D Max Gain', type:'int', range:[0,200], unit:'%', profile_scoped:true,
+    description:'Scales the D-Max boost range (how much D increases during fast inputs).' },
+  { key:'simplified_dmax_gain', tab:'pid_tuning', section:'Simplified Tuning',
+    label:'D Max Gain (legacy BF name)', type:'int', range:[0,200], unit:'%', profile_scoped:true,
+    description:'Legacy name for D Max Gain used in older Betaflight versions. Same function as simplified_d_max_gain.' },
+
+  // ── Filtering : Simplified ───────────────────────────────────────────────
+  { key:'simplified_gyro_filter_multiplier', tab:'filtering', section:'Simplified Filtering',
+    label:'Gyro Filter Multiplier', type:'int', range:[0,200], unit:'%',
+    description:'Scales all gyro filter cutoff frequencies together. Higher = less filtering (sharper response, more noise). Lower = more filtering (smoother, more phase delay).' },
+  { key:'simplified_dterm_filter_multiplier', tab:'filtering', section:'Simplified Filtering',
+    label:'D-Term Filter Multiplier', type:'int', range:[0,200], unit:'%',
+    description:'Scales D-term filter cutoff frequencies. Higher = less D-term filtering. Lower = more filtering but slower D-term response.' },
+
+  // ── Filtering : Gyro ─────────────────────────────────────────────────────
+  { key:'gyro_lpf1_static_hz', tab:'filtering', section:'Gyro Filtering',
+    label:'Gyro LPF1 Static (Hz)', type:'int', range:[0,1000], unit:'Hz',
+    description:'First gyro low-pass filter cutoff frequency. Set to 0 to use dynamic mode. Lower = more noise rejection, more phase delay.' },
+  { key:'gyro_lpf1_dyn_min_hz', tab:'filtering', section:'Gyro Filtering',
+    label:'Gyro LPF1 Dynamic Min (Hz)', type:'int', range:[0,1000], unit:'Hz',
+    description:'Minimum cutoff for dynamic gyro LPF1. Filter will not go below this frequency.' },
+  { key:'gyro_lpf1_dyn_max_hz', tab:'filtering', section:'Gyro Filtering',
+    label:'Gyro LPF1 Dynamic Max (Hz)', type:'int', range:[0,1000], unit:'Hz',
+    description:'Maximum cutoff for dynamic gyro LPF1. Filter will not go above this frequency.' },
+  { key:'gyro_lpf2_static_hz', tab:'filtering', section:'Gyro Filtering',
+    label:'Gyro LPF2 Static (Hz)', type:'int', range:[0,1000], unit:'Hz',
+    description:'Second gyro low-pass filter. Adds an extra noise rejection stage after LPF1. Set to 0 to disable.' },
+  { key:'gyro_lpf2_type', tab:'filtering', section:'Gyro Filtering',
+    label:'Gyro LPF2 Type', type:'enum', options:['PT1','PT2','PT3','BIQUAD'],
+    description:'Filter shape for gyro LPF2. PT1 = gentle rolloff. PT2/PT3 = steeper with more phase delay. BIQUAD = steepest.' },
+
+  // ── Filtering : D-Term ───────────────────────────────────────────────────
+  { key:'dterm_lpf1_static_hz', tab:'filtering', section:'D-Term Filtering',
+    label:'D-Term LPF1 Static (Hz)', type:'int', range:[0,1000], unit:'Hz',
+    description:'First D-term low-pass filter cutoff. D-term is inherently noisy - this is its primary noise filter. Set to 0 for dynamic mode.' },
+  { key:'dterm_lpf1_dyn_min_hz', tab:'filtering', section:'D-Term Filtering',
+    label:'D-Term LPF1 Dynamic Min (Hz)', type:'int', range:[0,1000], unit:'Hz',
+    description:'Minimum cutoff for dynamic D-term LPF1.' },
+  { key:'dterm_lpf1_dyn_max_hz', tab:'filtering', section:'D-Term Filtering',
+    label:'D-Term LPF1 Dynamic Max (Hz)', type:'int', range:[0,1000], unit:'Hz',
+    description:'Maximum cutoff for dynamic D-term LPF1.' },
+  { key:'dterm_lpf1_dyn_expo', tab:'filtering', section:'D-Term Filtering',
+    label:'D-Term LPF1 Dynamic Expo', type:'int', range:[0,10],
+    description:'Shapes the dynamic D-term filter curve. Higher = filter spends more time at lower frequencies (more filtering at rest).' },
+  { key:'dterm_lpf2_static_hz', tab:'filtering', section:'D-Term Filtering',
+    label:'D-Term LPF2 Static (Hz)', type:'int', range:[0,1000], unit:'Hz',
+    description:'Second D-term low-pass filter. Additional noise rejection after LPF1.' },
+
+  // ── Filtering : Dynamic Notch ────────────────────────────────────────────
+  { key:'dyn_notch_count', tab:'filtering', section:'Dynamic Notch Filter',
+    label:'Dynamic Notch Count', type:'int', range:[0,4],
+    description:'Number of dynamic notch filters active simultaneously (0-4). More notches = better noise targeting but more phase delay.' },
+  { key:'dyn_notch_min_hz', tab:'filtering', section:'Dynamic Notch Filter',
+    label:'Dynamic Notch Min (Hz)', type:'int', range:[0,1000], unit:'Hz',
+    description:'Lowest frequency the dynamic notch will track. Set based on your lowest expected motor noise at low RPM.' },
+  { key:'dyn_notch_max_hz', tab:'filtering', section:'Dynamic Notch Filter',
+    label:'Dynamic Notch Max (Hz)', type:'int', range:[0,1000], unit:'Hz',
+    description:'Highest frequency the dynamic notch will track.' },
+  { key:'dyn_notch_q', tab:'filtering', section:'Dynamic Notch Filter',
+    label:'Dynamic Notch Q Factor', type:'int', range:[1,1000],
+    description:'Bandwidth of each notch filter. Lower Q = wider notch (catches more noise, removes more signal). Higher Q = narrower, more precise.' },
+
+  // ── Filtering : RPM ──────────────────────────────────────────────────────
+  { key:'rpm_filter_weights', tab:'filtering', section:'RPM Filter',
+    label:'RPM Filter Weights (1st,2nd,3rd)', type:'string',
+    description:'Strength of RPM notch filters for motor harmonics. Format: 100,20,100. Set to 0,0,0 to disable all. Requires bidirectional DSHOT.' },
+  { key:'rpm_filter_fade_range_hz', tab:'filtering', section:'RPM Filter',
+    label:'RPM Filter Fade Range (Hz)', type:'int', range:[0,1000], unit:'Hz',
+    description:'Frequency range over which RPM notch filters fade in from 0 Hz. Prevents targeting very low RPM noise at idle.' },
+
+  // ── Filtering : Misc ─────────────────────────────────────────────────────
+  { key:'yaw_lowpass_hz', tab:'filtering', section:'Misc Filtering',
+    label:'Yaw Lowpass (Hz)', type:'int', range:[0,500], unit:'Hz',
+    description:'Low-pass filter on yaw PID output. Reduces yaw noise and twitchiness. Set to 0 to disable.' },
+
+  // ── Receiver ─────────────────────────────────────────────────────────────
+  { key:'deadband', tab:'receiver', section:'Stick Sensitivity',
+    label:'RC Deadband', type:'int', range:[0,32],
+    description:'Stick deadband around centre for roll and pitch (in microseconds). Inputs within this range are treated as centred. Helps with drifty sticks.' },
+  { key:'yaw_deadband', tab:'receiver', section:'Stick Sensitivity',
+    label:'Yaw Deadband', type:'int', range:[0,32],
+    description:'Stick deadband around centre for the yaw axis only. Same concept as RC Deadband but for yaw.' },
+  { key:'expresslrs_model_id', tab:'receiver', section:'ExpressLRS (SPI)',
+    label:'ELRS Model ID', type:'int', range:[0,63],
+    description:'Model Match ID for ExpressLRS. When Model Match is enabled on your TX, the RX only pairs with a TX sending this ID. Set to 0 to disable Model Match.' },
+  { key:'expresslrs_rate_index', tab:'receiver', section:'ExpressLRS (SPI)',
+    label:'ELRS Packet Rate', type:'enum',
+    options:['0 (500Hz)','1 (250Hz)','2 (150Hz)','3 (100Hz)','4 (50Hz)','5 (25Hz)'],
+    description:'Default RF packet rate index for ELRS SPI receivers. Lower index = higher frequency = lower latency but shorter range.' },
+
+  // ── VTX ──────────────────────────────────────────────────────────────────
+  { key:'vtx_band', tab:'vtx', section:'Channel & Power',
+    label:'VTX Band', type:'int', range:[0,8],
+    description:'Video transmitter frequency band. 1=Boscam A, 2=Boscam B, 3=Boscam E, 4=Fatshark/Airwave, 5=Race Band. Check your goggle supported bands.' },
+  { key:'vtx_channel', tab:'vtx', section:'Channel & Power',
+    label:'VTX Channel', type:'int', range:[1,8],
+    description:'Video transmitter channel within the selected band (1-8). Coordinate with other pilots to avoid frequency clashes.' },
+  { key:'vtx_power', tab:'vtx', section:'Channel & Power',
+    label:'VTX Power Level', type:'int', range:[0,7],
+    description:'Transmit power index. Specific power levels (mW) depend on your VTX model. 1 = lowest. Always fly at the lowest power that gives reliable video.' },
+  { key:'vtx_freq', tab:'vtx', section:'Channel & Power',
+    label:'VTX Frequency (MHz)', type:'readonly',
+    description:'Output frequency derived from your band and channel selection. Read-only reference.' },
+
+  // ── Rates : Profile Identity ─────────────────────────────────────────────
+  { key:'rateprofile_name', tab:'rates', section:'Profile Identity',
+    label:'Rate Profile Name', type:'string', rate_scoped:true,
+    description:'Display name for this rate profile shown in the OSD rate profile indicator.' },
+  { key:'rates_type', tab:'rates', section:'Profile Identity',
+    label:'Rates Type', type:'enum', options:['BETAFLIGHT','KISS','ACTUAL','QUICK'], rate_scoped:true,
+    description:'Rate calculation method. BETAFLIGHT = classic RC Rate/Super Rate/Expo system. ACTUAL = set max deg/s directly. QUICK = simplified curve.' },
+
+  // ── Rates : Roll ─────────────────────────────────────────────────────────
+  { key:'roll_rc_rate', tab:'rates', section:'Roll',
+    label:'Roll RC Rate', type:'int', range:[1,255], rate_scoped:true,
+    description:'Base roll rate multiplier. Controls overall roll speed. Higher = faster rolls for the same stick input.' },
+  { key:'roll_srate', tab:'rates', section:'Roll',
+    label:'Roll Super Rate', type:'int', range:[0,100], rate_scoped:true,
+    description:'Exponential roll rate boost at full stick. 0 = linear. Higher = faster at full deflection, slower near centre.' },
+  { key:'roll_expo', tab:'rates', section:'Roll',
+    label:'Roll Expo', type:'int', range:[0,100], rate_scoped:true,
+    description:'Softens roll stick feel around centre. Higher = more sluggish centre feel, better precision for slow moves. 0 = no expo.' },
+
+  // ── Rates : Pitch ────────────────────────────────────────────────────────
+  { key:'pitch_rc_rate', tab:'rates', section:'Pitch',
+    label:'Pitch RC Rate', type:'int', range:[1,255], rate_scoped:true,
+    description:'Base pitch rate. Usually matched to Roll RC Rate for balanced feel.' },
+  { key:'pitch_srate', tab:'rates', section:'Pitch',
+    label:'Pitch Super Rate', type:'int', range:[0,100], rate_scoped:true,
+    description:'Exponential pitch rate boost at full stick.' },
+  { key:'pitch_expo', tab:'rates', section:'Pitch',
+    label:'Pitch Expo', type:'int', range:[0,100], rate_scoped:true,
+    description:'Softens pitch feel around centre.' },
+
+  // ── Rates : Yaw ──────────────────────────────────────────────────────────
+  { key:'yaw_rc_rate', tab:'rates', section:'Yaw',
+    label:'Yaw RC Rate', type:'int', range:[1,255], rate_scoped:true,
+    description:'Base yaw rate. Usually set lower than roll/pitch for more controlled yaw inputs.' },
+  { key:'yaw_srate', tab:'rates', section:'Yaw',
+    label:'Yaw Super Rate', type:'int', range:[0,100], rate_scoped:true,
+    description:'Exponential yaw rate boost at full stick.' },
+  { key:'yaw_expo', tab:'rates', section:'Yaw',
+    label:'Yaw Expo', type:'int', range:[0,100], rate_scoped:true,
+    description:'Softens yaw feel around centre.' },
+
+  // ── Rates : Throttle ─────────────────────────────────────────────────────
+  { key:'thr_mid', tab:'rates', section:'Throttle',
+    label:'Hover Throttle Mid', type:'int', range:[0,100], unit:'%', rate_scoped:true,
+    description:'BF 4.2+ only: internal hover throttle midpoint reference used by altitude-aware modes (EZ Landing, turtle mode). Does NOT affect regular throttle stick feel in acro/freestyle.' },
+  { key:'thr_hover', tab:'rates', section:'Throttle',
+    label:'Hover Throttle', type:'int', range:[0,100], unit:'%', rate_scoped:true,
+    description:'Estimated throttle percentage at which your quad hovers. Used by EZ Landing, turtle mode recovery, and similar features. Has no effect in pure acro flying.' },
+];
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════════════════════ */
+let parsedConfig = null;
+let curPidProfile = 0;
+let curRateProfile = 0;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HTML ESCAPE  - used everywhere values are injected into innerHTML
+   ═══════════════════════════════════════════════════════════════════════════ */
+function esc(v) {
+  return String(v)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#x27;');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CLI PARSER
+   Handles any valid Betaflight `diff all` export regardless of version,
+   header format, or number of profiles.
+   ═══════════════════════════════════════════════════════════════════════════ */
+function parseCLI(text) {
+  const result = {
+    headerLines:[], globalParams:{}, profiles:{}, rateprofiles:{},
+    modeRanges:[], adjRanges:[], otherLines:[],
+    bfVersion:null, profileCount:1, rateprofileCount:1,
+  };
+
+  let inHeader = true;
+  let curProfile = null;
+  let curRatep = null;
+
+  for (const rawLine of text.split('\n')) {
+    // Normalise line endings (handle CRLF files)
+    const line = rawLine.replace(/\r$/, '');
+    const stripped = line.trim();
+
+    // ── Header block (comments / blanks before first command) ──
+    if (inHeader) {
+      if (stripped.startsWith('#') || stripped === '') {
+        result.headerLines.push(line);
+        const m = stripped.match(/Betaflight\s*\/\s*\S+\s*\/\s*(\d+\.\d+\.\d+)/);
+        if (m) result.bfVersion = m[1];
+        continue;
+      }
+      inHeader = false;
+    }
+
+    if (!stripped || stripped === 'save') continue;
+
+    // ── Profile section headers ──
+    if (/^profile\s+\d+$/.test(stripped)) {
+      curProfile = parseInt(stripped.split(/\s+/)[1], 10);
+      curRatep   = null;
+      if (!result.profiles[curProfile]) result.profiles[curProfile] = {};
+      result.profileCount = Math.max(result.profileCount, curProfile + 1);
+      continue;
+    }
+    if (/^rateprofile\s+\d+$/.test(stripped)) {
+      curRatep   = parseInt(stripped.split(/\s+/)[1], 10);
+      curProfile = null;
+      if (!result.rateprofiles[curRatep]) result.rateprofiles[curRatep] = {};
+      result.rateprofileCount = Math.max(result.rateprofileCount, curRatep + 1);
+      continue;
+    }
+
+    // ── set param = value ──
+    if (stripped.startsWith('set ') && stripped.includes(' = ')) {
+      const rest   = stripped.slice(4);
+      const eqIdx  = rest.indexOf(' = ');
+      const key    = rest.slice(0, eqIdx).trim();
+      const value  = rest.slice(eqIdx + 3).trim();
+      if      (curRatep   !== null) result.rateprofiles[curRatep][key]   = value;
+      else if (curProfile !== null) result.profiles[curProfile][key]     = value;
+      else                          result.globalParams[key]              = value;
+      continue;
+    }
+
+    // ── Structured passthrough ──
+    if (stripped.startsWith('mode_range ')) { result.modeRanges.push(stripped); continue; }
+    if (stripped.startsWith('adjrange '))   { result.adjRanges.push(stripped);  continue; }
+
+    // ── Everything else is preserved verbatim (vtxtable, serial, beacon...) ──
+    result.otherLines.push(line);
+  }
+
+  return result;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VALUE GETTER  - reads current value for a param from parsed state
+   ═══════════════════════════════════════════════════════════════════════════ */
+function getVal(key, meta) {
+  if (!parsedConfig) return '';
+  if (meta.profile_scoped) return (parsedConfig.profiles[curPidProfile]  || {})[key] || '';
+  if (meta.rate_scoped)    return (parsedConfig.rateprofiles[curRateProfile] || {})[key] || '';
+  let v = parsedConfig.globalParams[key] || '';
+  if (!v && Object.keys(parsedConfig.profiles).length > 0) {
+    const first = Math.min(...Object.keys(parsedConfig.profiles).map(Number));
+    v = (parsedConfig.profiles[first] || {})[key] || '';
+  }
+  return v;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FIELD BUILDER  - returns HTML string for one parameter field
+   ═══════════════════════════════════════════════════════════════════════════ */
+function buildField(key, meta, value) {
+  const ftype      = meta.type || 'string';
+  const label      = esc(meta.label || key);
+  const desc       = esc(meta.description || '');
+  const hw         = !!meta.hardware_specific;
+  const isRo       = ftype === 'readonly' || hw;
+  const unit       = esc(meta.unit || '');
+  const note       = esc(meta.note || '');
+  const valSafe    = esc(value);
+  const wasPresent = value !== '' ? 'true' : 'false';
+  const css        = hw ? 'field-group hw-locked' : 'field-group';
+  const tip        = desc ? `<span class="tooltip-icon" data-tip="${desc}">?</span>` : '';
+
+  let inp = '';
+
+  if (isRo) {
+    const hwBadge  = hw ? '<span class="hw-badge">&#x1F512; Hardware-specific &mdash; do not copy between builds</span>' : '';
+    const noteHtml = note ? `<span class="field-note">${note}</span>` : '';
+    inp = `<input type="text" id="field-${key}" value="${valSafe}" readonly>${hwBadge}${noteHtml}`;
+
+  } else if (ftype === 'bool') {
+    const checked = ['ON','TRUE','1'].includes(String(value).toUpperCase()) ? 'checked' : '';
+    inp = `<div class="toggle-wrap">
+      <label class="toggle-label">
+        <input type="checkbox" id="field-${key}" ${checked} data-was-present="${wasPresent}">
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-state-label" id="field-${key}-lbl">${checked ? 'ON' : 'OFF'}</span>
+    </div>`;
+
+  } else if (ftype === 'enum') {
+    let opts = '';
+    let matched = false;
+    if (value === '') opts += `<option value="" selected>&mdash; not set &mdash;</option>`;
+    for (const opt of (meta.options || [])) {
+      const optKey = opt.includes(' ') ? opt.split(' ')[0] : opt;
+      const sel    = (optKey === value || opt === value) ? 'selected' : '';
+      if (sel) matched = true;
+      opts += `<option value="${esc(optKey)}" ${sel}>${esc(opt)}</option>`;
+    }
+    if (!matched && value) opts += `<option value="${valSafe}" selected>${valSafe} (from config)</option>`;
+    inp = `<select id="field-${key}" data-was-present="${wasPresent}">${opts}</select>`;
+
+  } else if (ftype === 'int' || ftype === 'float') {
+    const rng     = meta.range || [0, 10000];
+    const unitSpan = unit ? `<span class="unit-label">${unit}</span>` : '';
+    const ph      = value === '' ? ' placeholder="add to config"' : '';
+    inp = `<div class="field-number-wrap">
+      <input type="number" id="field-${key}" value="${valSafe}" min="${rng[0]}" max="${rng[1]}"${ph} data-was-present="${wasPresent}">
+      ${unitSpan}
+    </div>`;
+
+  } else {
+    const ph = value === '' ? ' placeholder="add to config"' : '';
+    inp = `<input type="text" id="field-${key}" value="${valSafe}"${ph} data-was-present="${wasPresent}">`;
+  }
+
+  const addBadge = (value === '' && !isRo)
+    ? '<span class="field-adding-badge">+ will be added to export if set</span>' : '';
+
+  return `<div class="${css}" id="fg-${key}">
+    <div class="field-label-row"><span class="field-label">${label}</span>${tip}</div>
+    ${inp}${addBadge}
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENDER TAB  - builds and injects field HTML for one tab
+   ═══════════════════════════════════════════════════════════════════════════ */
+function renderTab(tabName, containerId, pidProfile, rateProfile) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  let currentSection = null;
+  let html = '';
+  for (const meta of PARAMS) {
+    if (meta.tab !== tabName) continue;
+    const { key, section } = meta;
+    if (section !== currentSection) {
+      currentSection = section;
+      html += `<div class="section-header">${esc(section)}</div>`;
+    }
+    let value = '';
+    if (parsedConfig) {
+      if      (meta.profile_scoped) value = (parsedConfig.profiles[pidProfile]       || {})[key] || '';
+      else if (meta.rate_scoped)    value = (parsedConfig.rateprofiles[rateProfile]  || {})[key] || '';
+      else                          value = getVal(key, meta);
+    }
+    html += buildField(key, meta, value);
+  }
+  container.innerHTML = html;
+}
+
+function renderAll() {
+  ['configuration','power_battery','filtering','receiver','vtx']
+    .forEach(tab => renderTab(tab, `fields-${tab}`, curPidProfile, curRateProfile));
+  renderTab('pid_tuning', 'fields-pid_tuning', curPidProfile, curRateProfile);
+  renderTab('rates',      'fields-rates',      curPidProfile, curRateProfile);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   INFO BAR
+   ═══════════════════════════════════════════════════════════════════════════ */
+function updateInfoBar() {
+  const version = parsedConfig.bfVersion || '&mdash;';
+  let craft = parsedConfig.globalParams['craft_name'] || '';
+  if (!craft) {
+    for (const p of Object.values(parsedConfig.profiles)) {
+      if (p['craft_name']) { craft = p['craft_name']; break; }
+    }
+  }
+  document.getElementById('info-version').innerHTML      = `BF <span>${esc(version)}</span>`;
+  document.getElementById('info-craft').innerHTML        = `Craft: <span>${esc(craft || '&mdash;')}</span>`;
+  document.getElementById('info-pid-profiles').innerHTML = `PID Profiles: <span>${parsedConfig.profileCount}</span>`;
+  document.getElementById('info-rate-profiles').innerHTML= `Rate Profiles: <span>${parsedConfig.rateprofileCount}</span>`;
+
+  const pidSel  = document.getElementById('pid-profile-select');
+  const rateSel = document.getElementById('rate-profile-select');
+  pidSel.innerHTML  = Array.from({length:parsedConfig.profileCount},
+    (_,i) => `<option value="${i}">Profile ${i}</option>`).join('');
+  rateSel.innerHTML = Array.from({length:parsedConfig.rateprofileCount},
+    (_,i) => `<option value="${i}">Rate Profile ${i}</option>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROCESS CLI TEXT  - parse and populate UI
+   ═══════════════════════════════════════════════════════════════════════════ */
+function processCliText(text) {
+  if (!text.trim()) { showError('Nothing to load. Upload a file or paste CLI text first.'); return; }
+
+  parsedConfig   = parseCLI(text);
+  curPidProfile  = 0;
+  curRateProfile = 0;
+
+  updateInfoBar();
+  renderAll();
+
+  // Pre-populate mode/adj paste areas
+  document.getElementById('mode-range-paste').value = (parsedConfig.modeRanges || []).join('\n');
+  document.getElementById('adjrange-paste').value   = (parsedConfig.adjRanges  || []).join('\n');
+
+  // Suggest export filename
+  let craft = parsedConfig.globalParams['craft_name'] || '';
+  for (const p of Object.values(parsedConfig.profiles)) { if (p['craft_name']) { craft = p['craft_name']; break; } }
+  const fname = (craft || 'config').replace(/["\s]/g,'_').replace(/_+/g,'_');
+  document.getElementById('export-filename').value = `${fname}_edited.txt`;
+
+  // Show sections
+  ['config-info','editor-section','export-section'].forEach(id => {
+    document.getElementById(id).style.display = 'block';
+  });
+
+  hideError();
+  showSuccess(`Config loaded. Betaflight ${parsedConfig.bfVersion || 'version unknown'} &mdash; ${parsedConfig.profileCount} PID profile(s), ${parsedConfig.rateprofileCount} rate profile(s).`);
+  switchTab('configuration');
+}
+
+function showError(msg)   { const e=document.getElementById('import-error');   e.textContent=msg; e.style.display='block'; document.getElementById('import-success').style.display='none'; }
+function hideError()      { document.getElementById('import-error').style.display='none'; }
+function showSuccess(msg) { const e=document.getElementById('import-success'); e.innerHTML=msg;  e.style.display='block'; document.getElementById('import-error').style.display='none'; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TAB SWITCHING
+   ═══════════════════════════════════════════════════════════════════════════ */
+function switchTab(tabName) {
+  const TABS = ['configuration','power_battery','pid_tuning','filtering','receiver','vtx','modes','adjustments'];
+  TABS.forEach(t => {
+    const panel = document.getElementById(`tab-${t}`);
+    if (panel) panel.classList.toggle('active', t === tabName);
+  });
+  document.querySelectorAll('.tab-btn').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.tab === tabName)
+  );
+  const profRow = document.getElementById('profile-selector-row');
+  if (profRow) profRow.style.display = tabName === 'pid_tuning' ? 'flex' : 'none';
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   READ FIELD  - returns current form value or null if should be skipped
+   ═══════════════════════════════════════════════════════════════════════════ */
+function readField(key, meta) {
+  const el = document.getElementById(`field-${key}`);
+  if (!el) return null;
+
+  const ftype = meta.type || 'string';
+
+  // Always preserve readonly / hardware-specific values as-is
+  if (ftype === 'readonly' || meta.hardware_specific) {
+    return el.value || null;
+  }
+
+  const wasPresent = el.getAttribute('data-was-present') !== 'false';
+
+  if (ftype === 'bool') {
+    const isOn = el.checked;
+    if (!wasPresent && !isOn) return null; // absent + still off = skip
+    return isOn ? 'ON' : 'OFF';
+  }
+
+  // Empty string = "— not set —" sentinel for enums, or blank number/text = skip
+  const val = el.value.trim();
+  if (val === '') return null;
+
+  return el.value;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GENERATE EXPORT  - reconstruct the full CLI text
+   ═══════════════════════════════════════════════════════════════════════════ */
+function generateExport() {
+  if (!parsedConfig) return '';
+  const lines = [];
+
+  // ── Original header comments preserved verbatim ──
+  lines.push(...parsedConfig.headerLines);
+
+  // ── Global params: merge original with any form edits ──
+  const globalOut = Object.assign({}, parsedConfig.globalParams);
+  for (const meta of PARAMS) {
+    if (meta.profile_scoped || meta.rate_scoped) continue;
+    const val = readField(meta.key, meta);
+    if (val !== null && val !== '') globalOut[meta.key] = val;
+  }
+  for (const [k, v] of Object.entries(globalOut)) lines.push(`set ${k} = ${v}`);
+
+  // ── Passthrough lines (vtxtable, serial, beacon, resource...) ──
+  lines.push(...parsedConfig.otherLines);
+
+  // ── PID profiles ──
+  for (const pNum of Object.keys(parsedConfig.profiles).map(Number).sort((a,b)=>a-b)) {
+    lines.push('');
+    lines.push(`profile ${pNum}`);
+    const profileOut = Object.assign({}, parsedConfig.profiles[pNum]);
+    if (pNum === curPidProfile) {
+      for (const meta of PARAMS) {
+        if (!meta.profile_scoped) continue;
+        const val = readField(meta.key, meta);
+        if (val !== null && val !== '') profileOut[meta.key] = val;
+      }
+    }
+    for (const [k, v] of Object.entries(profileOut)) lines.push(`set ${k} = ${v}`);
+  }
+
+  // ── Rate profiles ──
+  for (const rNum of Object.keys(parsedConfig.rateprofiles).map(Number).sort((a,b)=>a-b)) {
+    lines.push('');
+    lines.push(`rateprofile ${rNum}`);
+    const rpOut = Object.assign({}, parsedConfig.rateprofiles[rNum]);
+    if (rNum === curRateProfile) {
+      for (const meta of PARAMS) {
+        if (!meta.rate_scoped) continue;
+        const val = readField(meta.key, meta);
+        if (val !== null && val !== '') rpOut[meta.key] = val;
+      }
+    }
+    for (const [k, v] of Object.entries(rpOut)) lines.push(`set ${k} = ${v}`);
+  }
+
+  lines.push('');
+
+  // ── Mode ranges: user override OR original ──
+  const modePaste = document.getElementById('mode-range-paste').value.trim();
+  if (modePaste) {
+    for (const ln of modePaste.split('\n')) { const t=ln.trim(); if(t.startsWith('mode_range')) lines.push(t); }
+  } else {
+    lines.push(...parsedConfig.modeRanges);
+  }
+
+  // ── Adjranges: user override OR original ──
+  const adjPaste = document.getElementById('adjrange-paste').value.trim();
+  if (adjPaste) {
+    for (const ln of adjPaste.split('\n')) { const t=ln.trim(); if(t.startsWith('adjrange')) lines.push(t); }
+  } else {
+    lines.push(...parsedConfig.adjRanges);
+  }
+
+  lines.push('');
+  lines.push('save');
+
+  return lines.join('\n');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EVENT WIRING  - runs immediately (script is at end of body)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+// File upload
+document.getElementById('file-upload').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('file-name').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = ev => processCliText(ev.target.result);
+  reader.onerror = () => showError('Could not read the file. Please try again.');
+  reader.readAsText(file, 'UTF-8');
+});
+
+// Load button
+document.getElementById('load-btn').addEventListener('click', () => {
+  const paste = document.getElementById('paste-area').value;
+  if (paste.trim()) processCliText(paste);
+  else showError('Please upload a .txt file or paste CLI text above.');
+});
+
+// Export button
+document.getElementById('export-btn').addEventListener('click', () => {
+  const cli = generateExport();
+  if (!cli) return;
+  let filename = document.getElementById('export-filename').value.trim() || 'exported_config.txt';
+  if (!filename.endsWith('.txt')) filename += '.txt';
+  // Use UTF-8 encoding — all BF CLI values are ASCII-compatible
+  const blob = new Blob([cli], { type: 'text/plain;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+});
+
+// Tab buttons
+document.querySelectorAll('.tab-btn').forEach(btn =>
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab))
+);
+
+// PID profile select
+document.getElementById('pid-profile-select').addEventListener('change', e => {
+  curPidProfile = parseInt(e.target.value, 10);
+  renderTab('pid_tuning', 'fields-pid_tuning', curPidProfile, curRateProfile);
+});
+
+// Rate profile select
+document.getElementById('rate-profile-select').addEventListener('change', e => {
+  curRateProfile = parseInt(e.target.value, 10);
+  renderTab('rates', 'fields-rates', curPidProfile, curRateProfile);
+});
+
+// Toggle label updates via event delegation (works on dynamically rendered fields)
+document.addEventListener('change', e => {
+  if (e.target.type === 'checkbox' && e.target.id.startsWith('field-')) {
+    const key = e.target.id.slice(6); // strip 'field-'
+    const lbl = document.getElementById(`field-${key}-lbl`);
+    if (lbl) lbl.textContent = e.target.checked ? 'ON' : 'OFF';
+  }
+});
+</script>
 </body>
 </html>
