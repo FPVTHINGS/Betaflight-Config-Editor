@@ -552,17 +552,14 @@ const PARAMS = [
 
   // ── VTX ──────────────────────────────────────────────────────────────────
   { key:'vtx_band', tab:'vtx', section:'Channel & Power',
-    label:'VTX Band', type:'int', range:[0,8],
-    description:'Video transmitter frequency band. 1=Boscam A, 2=Boscam B, 3=Boscam E, 4=Fatshark/Airwave, 5=Race Band. Check your goggle supported bands.' },
+    label:'VTX Band', type:'enum', options:[],
+    description:'Video transmitter band. Names are read from your imported vtxtable. Standard fallback: 1=Boscam A, 2=Boscam B, 3=Boscam E, 4=Fatshark, 5=Race Band.' },
   { key:'vtx_channel', tab:'vtx', section:'Channel & Power',
     label:'VTX Channel', type:'int', range:[1,8],
     description:'Video transmitter channel within the selected band (1-8). Coordinate with other pilots to avoid frequency clashes.' },
   { key:'vtx_power', tab:'vtx', section:'Channel & Power',
-    label:'VTX Power Level', type:'int', range:[0,7],
-    description:'Transmit power index. Specific power levels (mW) depend on your VTX model. 1 = lowest. Always fly at the lowest power that gives reliable video.' },
-  { key:'vtx_freq', tab:'vtx', section:'Channel & Power',
-    label:'VTX Frequency (MHz)', type:'readonly',
-    description:'Output frequency derived from your band and channel selection. Read-only reference.' },
+    label:'VTX Power Level', type:'enum', options:[],
+    description:'Transmit power level. Power values (mW) are read from your imported vtxtable. If no vtxtable is present, generic level numbers are shown.' },
 
   // ── Rates : Profile Identity ─────────────────────────────────────────────
   { key:'rateprofile_name', tab:'rates', section:'Profile Identity',
@@ -642,6 +639,7 @@ function parseCLI(text) {
   const result = {
     headerLines:[], globalParams:{}, profiles:{}, rateprofiles:{},
     modeRanges:[], adjRanges:[], otherLines:[],
+    vtxTable:{ bands:[], powervalues:[], powerlabels:[] },
     bfVersion:null, profileCount:1, rateprofileCount:1,
   };
 
@@ -699,7 +697,19 @@ function parseCLI(text) {
     if (stripped.startsWith('mode_range ')) { result.modeRanges.push(stripped); continue; }
     if (stripped.startsWith('adjrange '))   { result.adjRanges.push(stripped);  continue; }
 
-    // ── Everything else is preserved verbatim (vtxtable, serial, beacon...) ──
+    // ── vtxtable: preserve verbatim AND parse band/power info ──
+    if (stripped.startsWith('vtxtable ')) {
+      result.otherLines.push(line); // always keep for export
+      const bandM = stripped.match(/^vtxtable band (\d+) (\S+)/);
+      if (bandM) result.vtxTable.bands.push({ num:parseInt(bandM[1],10), name:bandM[2] });
+      const pvM = stripped.match(/^vtxtable powervalues (.+)/);
+      if (pvM) result.vtxTable.powervalues = pvM[1].trim().split(/\s+/);
+      const plM = stripped.match(/^vtxtable powerlabels (.+)/);
+      if (plM) result.vtxTable.powerlabels = plM[1].trim().split(/\s+/);
+      continue;
+    }
+
+    // ── Everything else is preserved verbatim (serial, beacon, resource...) ──
     result.otherLines.push(line);
   }
 
@@ -719,6 +729,36 @@ function getVal(key, meta) {
     v = (parsedConfig.profiles[first] || {})[key] || '';
   }
   return v;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DYNAMIC OPTIONS  - builds enum options for fields that depend on
+   parsed vtxtable data (band names, power levels with mW values)
+   ═══════════════════════════════════════════════════════════════════════════ */
+const STANDARD_BANDS = [
+  {num:1,name:'Boscam A'},{num:2,name:'Boscam B'},{num:3,name:'Boscam E'},
+  {num:4,name:'Fatshark / Airwave'},{num:5,name:'Race Band'},
+  {num:6,name:'Band 6'},{num:7,name:'Band 7'},{num:8,name:'Band 8'},
+];
+
+function getDynamicOptions(key) {
+  if (key === 'vtx_band') {
+    const src = (parsedConfig && parsedConfig.vtxTable.bands.length > 0)
+      ? parsedConfig.vtxTable.bands
+      : STANDARD_BANDS;
+    return src.map(b => ({ value:String(b.num), label:`${b.num} - ${b.name}` }));
+  }
+  if (key === 'vtx_power') {
+    if (parsedConfig && parsedConfig.vtxTable.powervalues.length > 0) {
+      return parsedConfig.vtxTable.powervalues.map((v, i) => ({
+        value: String(i + 1),
+        label: `${i + 1} - ${v}mW`,
+      }));
+    }
+    // Fallback when no vtxtable present
+    return Array.from({length:5}, (_,i) => ({ value:String(i+1), label:`Level ${i+1}` }));
+  }
+  return null;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -757,12 +797,23 @@ function buildField(key, meta, value) {
   } else if (ftype === 'enum') {
     let opts = '';
     let matched = false;
+    const dynOpts = getDynamicOptions(key);
     if (value === '') opts += `<option value="" selected>&mdash; not set &mdash;</option>`;
-    for (const opt of (meta.options || [])) {
-      const optKey = opt.includes(' ') ? opt.split(' ')[0] : opt;
-      const sel    = (optKey === value || opt === value) ? 'selected' : '';
-      if (sel) matched = true;
-      opts += `<option value="${esc(optKey)}" ${sel}>${esc(opt)}</option>`;
+    if (dynOpts) {
+      // Dynamic options: array of {value, label}
+      for (const opt of dynOpts) {
+        const sel = opt.value === value ? 'selected' : '';
+        if (sel) matched = true;
+        opts += `<option value="${esc(opt.value)}" ${sel}>${esc(opt.label)}</option>`;
+      }
+    } else {
+      // Static options: array of strings
+      for (const opt of (meta.options || [])) {
+        const optKey = opt.includes(' ') ? opt.split(' ')[0] : opt;
+        const sel    = (optKey === value || opt === value) ? 'selected' : '';
+        if (sel) matched = true;
+        opts += `<option value="${esc(optKey)}" ${sel}>${esc(opt)}</option>`;
+      }
     }
     if (!matched && value) opts += `<option value="${valSafe}" selected>${valSafe} (from config)</option>`;
     inp = `<select id="field-${key}" data-was-present="${wasPresent}">${opts}</select>`;
