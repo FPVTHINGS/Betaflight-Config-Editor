@@ -75,16 +75,16 @@ Navigate the tabs — the layout mirrors Betaflight Configurator:
 
 | Tab | What You Can Edit |
 |---|---|
-| **Configuration** | Craft name, motor protocol, idle value, motor poles, throttle limits, failsafe, blackbox |
+| **Configuration** | Craft name, idle value, motor poles, dynamic idle, motor output limit, throttle limits, failsafe, beacon tone |
 | **Power & Battery** | Cell voltage thresholds, battery capacity, sag compensation |
 | **PID Tuning** | P/I/D/F per axis, D-Min/D-Max, I-term settings, feedforward, simplified tuning |
 | **Filtering** | Gyro and D-term filters, dynamic notch, RPM filter weights |
 | **Receiver** | Stick deadband, ELRS model ID and packet rate |
-| **Video Transmitter** | VTX band, channel, power level, video system |
+| **Video Transmitter** | VTX band, channel, power level |
 | **Modes** | Paste your own `mode_range` switch assignments |
 | **Adjustments** | Paste your own `adjrange` lines |
 
-**If a field shows "Not present in imported config"** — that parameter wasn't in the file you loaded. It will not be written to the export either. This is expected for parameters that match Betaflight defaults.
+**If a field shows "+ will be added to export if set"** — that parameter wasn't in the file you loaded, but you can still set a value here and it will be written into the export. Leave it blank (or leave an enum on "— not set —") to skip it entirely.
 
 **Parameters shown in grey with a lock icon** are hardware-specific. They display the value from your imported file for reference but cannot be edited here.
 
