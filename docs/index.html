@@ -889,10 +889,16 @@ function updateInfoBar() {
 
   const pidSel  = document.getElementById('pid-profile-select');
   const rateSel = document.getElementById('rate-profile-select');
-  pidSel.innerHTML  = Array.from({length:parsedConfig.profileCount},
-    (_,i) => `<option value="${i}">Profile ${i}</option>`).join('');
-  rateSel.innerHTML = Array.from({length:parsedConfig.rateprofileCount},
-    (_,i) => `<option value="${i}">Rate Profile ${i}</option>`).join('');
+  pidSel.innerHTML = Array.from({length:parsedConfig.profileCount}, (_,i) => {
+    const name = (parsedConfig.profiles[i] || {})['profile_name'] || '';
+    const label = name ? `P${i+1} - ${name}` : `Profile ${i}`;
+    return `<option value="${i}">${esc(label)}</option>`;
+  }).join('');
+  rateSel.innerHTML = Array.from({length:parsedConfig.rateprofileCount}, (_,i) => {
+    const name = (parsedConfig.rateprofiles[i] || {})['rateprofile_name'] || '';
+    const label = name ? `P${i+1} - ${name}` : `Rate Profile ${i}`;
+    return `<option value="${i}">${esc(label)}</option>`;
+  }).join('');
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
