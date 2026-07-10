@@ -795,7 +795,7 @@ function buildField(key, meta, value) {
   }
 
   const addBadge = (value === '' && !isRo)
-    ? '<span class="field-adding-badge">+ will be added to export if set</span>' : '';
+    ? '<span class="field-adding-badge">Using BF default &mdash; edit only to override</span>' : '';
 
   return `<div class="${css}" id="fg-${key}">
     <div class="field-label-row"><span class="field-label">${label}</span>${tip}</div>
