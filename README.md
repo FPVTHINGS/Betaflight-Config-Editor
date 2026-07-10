@@ -1,6 +1,6 @@
 # Betaflight Config Editor
 
-A browser-based tool for FPV pilots to import, safely edit, and export Betaflight CLI configuration files — no installation required.
+A browser-based tool for FPV pilots to import, safely edit, and export Betaflight CLI configuration files — no installation required. Works online and offline.
 
 **Live tool:** https://fpvthings.github.io/Betaflight-Config-Editor/
 
@@ -142,6 +142,16 @@ The parser accepts any valid Betaflight `diff all` export regardless of:
 - Number of PID profiles or rate profiles
 
 Files from community repos, personal backups, or pasted directly from the CLI all work.
+
+---
+
+## Offline / Standalone Use
+
+The tool is a single self-contained HTML file with no external dependencies. To use it completely offline:
+
+1. Open https://fpvthings.github.io/Betaflight-Config-Editor/ in your browser
+2. Save the page — **File → Save Page As** — save as **Webpage, HTML Only** (not "complete")
+3. Open that saved `.html` file directly from your desktop at any time — no internet connection needed
 
 ---
 
