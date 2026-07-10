@@ -478,6 +478,14 @@ input[readonly] {
   font-style: italic;
 }
 
+.field-adding-badge {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--accent-dim);
+  font-style: italic;
+}
+
 /* ── Toggle Switch ────────────────────────────────────────────────────────── */
 .toggle-wrap {
   display: flex; align-items: center; gap: 8px;

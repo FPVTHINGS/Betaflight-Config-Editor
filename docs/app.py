@@ -136,11 +136,11 @@ def build_field(key, meta, value):
     val_safe  = esc(value)
 
     css = "field-group hw-locked" if hw else "field-group"
+    was_present = "true" if value != "" else "false"
 
     tip_html = (f'<span class="tooltip-icon" data-tip="{desc}">?</span>'
                 if desc else "")
 
-    absent_hidden = ""
     input_html = ""
 
     if is_ro:
@@ -151,17 +151,12 @@ def build_field(key, meta, value):
                       f'readonly>'
                       f'{hw_badge}{note_html}')
 
-    elif value == "" and not is_ro:
-        # Param not present in imported config
-        absent_hidden = f'<input type="hidden" id="field-{key}" value="" data-absent="true">'
-        input_html = (absent_hidden +
-                      '<span class="field-absent">Not present in imported config</span>')
-
     elif ftype == "bool":
         checked = "checked" if str(value).upper() in ("ON", "TRUE", "1") else ""
         input_html = (f'<div class="toggle-wrap">'
                       f'<label class="toggle-label">'
-                      f'<input type="checkbox" id="field-{key}" {checked}>'
+                      f'<input type="checkbox" id="field-{key}" {checked} '
+                      f'data-was-present="{was_present}">'
                       f'<span class="toggle-slider"></span></label>'
                       f'<span class="toggle-state-label" id="field-{key}-lbl">'
                       f'{"ON" if checked else "OFF"}</span>'
@@ -171,8 +166,10 @@ def build_field(key, meta, value):
         opts = meta.get("options", [])
         options_html = ""
         matched = False
+        # Absent from config: add a blank sentinel so user must actively choose
+        if value == "":
+            options_html += '<option value="" selected>\u2014 not set \u2014</option>'
         for opt in opts:
-            # Support "0 (500Hz)" style — value key is the part before the space
             opt_key = opt.split(" ")[0] if " " in opt else opt
             sel = "selected" if (opt_key == value or opt == value) else ""
             if sel:
@@ -181,23 +178,33 @@ def build_field(key, meta, value):
         if not matched and value:
             options_html += (f'<option value="{val_safe}" selected>'
                              f'{val_safe} (from config)</option>')
-        input_html = (f'<select id="field-{key}">{options_html}</select>')
+        input_html = (f'<select id="field-{key}" data-was-present="{was_present}">'
+                      f'{options_html}</select>')
 
     elif ftype in ("int", "float"):
         rng = meta.get("range", [0, 10000])
         unit_span = f'<span class="unit-label">{unit}</span>' if unit else ""
+        ph = ' placeholder="add to config"' if value == "" else ""
         input_html = (f'<div class="field-number-wrap">'
                       f'<input type="number" id="field-{key}" value="{val_safe}" '
-                      f'min="{rng[0]}" max="{rng[1]}">'
+                      f'min="{rng[0]}" max="{rng[1]}"{ph} '
+                      f'data-was-present="{was_present}">'
                       f'{unit_span}</div>')
 
     else:  # string
-        input_html = f'<input type="text" id="field-{key}" value="{val_safe}">'
+        ph = ' placeholder="add to config"' if value == "" else ""
+        input_html = (f'<input type="text" id="field-{key}" value="{val_safe}"{ph} '
+                      f'data-was-present="{was_present}">')
+
+    adding_badge = (
+        '<span class="field-adding-badge">+ will be added to export if set</span>'
+        if value == "" and not is_ro else ""
+    )
 
     return (f'<div class="{css}" id="fg-{key}">'
             f'<div class="field-label-row">'
             f'<span class="field-label">{label}</span>{tip_html}</div>'
-            f'{input_html}</div>')
+            f'{input_html}{adding_badge}</div>')
 
 
 # ── Form Population ───────────────────────────────────────────────────────────
@@ -419,19 +426,29 @@ def _rate_profile_handler(event):
 
 # ── Export ────────────────────────────────────────────────────────────────────
 def read_field(key, meta):
-    """Read current form value for a param, or None if absent/skipped."""
+    """Read current form value for a param, or None if should be skipped."""
     el = document.getElementById(f"field-{key}")
     if not el:
-        return None
-    if el.getAttribute("data-absent") == "true":
         return None
 
     ftype = meta.get("type", "string")
     if ftype == "readonly" or meta.get("hardware_specific"):
         return el.value  # preserve original
 
+    was_present = el.getAttribute("data-was-present") != "false"
+
     if ftype == "bool":
-        return "ON" if el.checked else "OFF"
+        is_on = el.checked
+        # If absent from original and still off, don't write it
+        if not was_present and not is_on:
+            return None
+        return "ON" if is_on else "OFF"
+
+    val = str(el.value).strip()
+
+    # Enum sentinel "— not set —" means user left it unset
+    if val == "":
+        return None
 
     return el.value
 

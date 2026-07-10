@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -13,38 +13,32 @@
 
 <body>
 
-<!-- ── Loading Overlay ──────────────────────────────────────────────────── -->
+<!-- â”€â”€ Loading Overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div id="loading-overlay">
   <div class="loader-spinner"></div>
-  <span class="loader-title">Loading Python runtime…</span>
+  <span class="loader-title">Loading Python runtimeâ€¦</span>
   <span class="loader-sub">First visit takes ~5 seconds. Subsequent loads are cached by your browser.</span>
 </div>
 
-<!-- ── Inline Params Database (read by app.py) ──────────────────────────── -->
+<!-- â”€â”€ Inline Params Database (read by app.py) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <script type="application/json" id="params-data">
 [
-  { "key": "craft_name",                   "tab": "configuration", "section": "Craft & Identity",        "label": "Craft Name",                        "description": "The name of your quad as displayed in the OSD and Blackbox logs. No spaces — use underscores.", "type": "string" },
+  { "key": "craft_name",                   "tab": "configuration", "section": "Craft & Identity",        "label": "Craft Name",                        "description": "The name of your quad as displayed in the OSD and Blackbox logs. No spaces â€” use underscores.", "type": "string" },
 
-  { "key": "motor_pwm_protocol",           "tab": "configuration", "section": "Motor & ESC",             "label": "Motor Protocol",                    "description": "Digital signal protocol between FC and ESCs. DSHOT300 is recommended for most builds. Higher numbers mean faster updates but require ESC support.", "type": "enum", "options": ["DISABLED", "ONESHOT125", "ONESHOT42", "MULTISHOT", "BRUSHED", "DSHOT150", "DSHOT300", "DSHOT600", "PROSHOT1000"] },
-  { "key": "dshot_bidir",                  "tab": "configuration", "section": "Motor & ESC",             "label": "Bidirectional DSHOT",               "description": "Enables RPM telemetry from ESCs for RPM-based filtering. Requires ESC firmware with bidir support (BLHeli_32, AM32, Bluejay).", "type": "readonly", "note": "Changing this requires matching ESC firmware support — edit manually if needed." },
+  { "key": "dshot_bidir",                  "tab": "configuration", "section": "Motor & ESC",             "label": "Bidirectional DSHOT",               "description": "Enables RPM telemetry from ESCs for RPM-based filtering. Requires ESC firmware with bidir support (BLHeli_32, AM32, Bluejay).", "type": "readonly", "note": "Changing this requires matching ESC firmware support â€” edit manually if needed." },
   { "key": "dshot_idle_value",             "tab": "configuration", "section": "Motor & ESC",             "label": "DSHOT Idle Value",                  "description": "Idle throttle signal sent to ESCs when armed but not flying. Higher values spin motors faster at idle. Typical range: 550-1100.", "type": "int", "range": [100, 2000] },
   { "key": "motor_poles",                  "tab": "configuration", "section": "Motor & ESC",             "label": "Motor Poles",                       "description": "Number of magnetic poles in your motors. Critical for accurate RPM filtering. Most micro motors = 12 poles; larger 5 inch motors often = 14.", "type": "int", "range": [2, 28] },
   { "key": "dyn_idle_min_rpm",             "tab": "configuration", "section": "Motor & ESC",             "label": "Dynamic Idle Min RPM",              "description": "Minimum RPM the FC will target during idle to keep motors spinning. Prevents stalls on fast descents. Set to 0 to disable.", "type": "int", "range": [0, 100] },
   { "key": "motor_output_limit",           "tab": "configuration", "section": "Motor & ESC",             "label": "Motor Output Limit (%)",            "description": "Caps maximum motor output as a percentage. Useful for reducing power on overpowered builds or indoor flying.", "type": "int", "range": [1, 100], "unit": "%" },
-  { "key": "yaw_motors_reversed",          "tab": "configuration", "section": "Motor & ESC",             "label": "Yaw Motors Reversed",               "description": "Reverses expected yaw spin direction. Enable if your quad yaws opposite to stick input after correct motor order setup.", "type": "bool" },
 
   { "key": "small_angle",                  "tab": "configuration", "section": "Flight Behaviour",        "label": "Small Angle Limit",                 "description": "Maximum tilt angle allowed for arming. Default 25 degrees prevents arming when tilted. Set to 180 to arm at any angle.", "type": "int", "range": [0, 180], "unit": "deg" },
   { "key": "fpv_mix_degrees",              "tab": "configuration", "section": "Flight Behaviour",        "label": "FPV Camera Angle",                  "description": "Tilt angle of your FPV camera in degrees. Used with FPV Angle Mix so the horizon stays level in your feed during forward flight.", "type": "int", "range": [0, 90], "unit": "deg" },
-  { "key": "horizon_level_strength",       "tab": "configuration", "section": "Flight Behaviour",        "label": "Horizon Level Strength",            "description": "How strongly self-levelling is applied in Horizon mode at full stick deflection. Higher = stronger levelling force at full stick.", "type": "int", "range": [0, 100] },
   { "key": "throttle_limit_type",          "tab": "configuration", "section": "Flight Behaviour",        "label": "Throttle Limit Type",               "description": "How throttle limiting is applied. SCALE compresses the full range into the limit. CLIP hard-cuts at the limit value.", "type": "enum", "options": ["OFF", "SCALE", "CLIP"] },
   { "key": "throttle_limit_percent",       "tab": "configuration", "section": "Flight Behaviour",        "label": "Throttle Limit",                    "description": "Maximum throttle allowed as a percentage. Only active when Throttle Limit Type is not OFF.", "type": "int", "range": [1, 100], "unit": "%" },
   { "key": "failsafe_delay",               "tab": "configuration", "section": "Flight Behaviour",        "label": "Failsafe Delay",                    "description": "Time with no RC signal before failsafe activates, in tenths of a second. Default 4 = 0.4s.", "type": "int", "range": [1, 200] },
   { "key": "failsafe_recovery_delay",      "tab": "configuration", "section": "Flight Behaviour",        "label": "Failsafe Recovery Delay",           "description": "Time signal must be re-established before exiting failsafe. Default 20 = 2.0s.", "type": "int", "range": [1, 200] },
-  { "key": "ez_landing_limit",             "tab": "configuration", "section": "Flight Behaviour",        "label": "EZ Landing Limit",                  "description": "Stick deflection threshold below which EZ Landing engages (auto-levels on landing). Set to 0 to disable.", "type": "int", "range": [0, 90] },
 
-  { "key": "blackbox_device",              "tab": "configuration", "section": "System",                  "label": "Blackbox Device",                   "description": "Where flight data logs are saved. NONE disables logging. SPIFLASH = onboard flash chip. SDCARD = SD card slot.", "type": "enum", "options": ["NONE", "SPIFLASH", "SDCARD", "SERIAL"] },
   { "key": "beeper_dshot_beacon_tone",     "tab": "configuration", "section": "System",                  "label": "Beacon Motor Tone",                 "description": "Which motor beeper tone plays when using DSHOT beacon (find-my-quad). Values 1-5, each with a different pitch.", "type": "int", "range": [1, 5] },
-  { "key": "debug_mode",                   "tab": "configuration", "section": "System",                  "label": "Debug Mode",                        "description": "Selects which debug data is logged to Blackbox. NONE disables debug logging. Leave as-is unless you are diagnosing a specific issue.", "type": "string" },
 
   { "key": "vbat_max_cell_voltage",        "tab": "power_battery", "section": "Cell Voltages",           "label": "Max Cell Voltage (mV)",             "description": "Maximum voltage per cell in millivolts. Standard LiPo = 420mV. HV LiPo = 430-450mV. Used to calculate battery percentage.", "type": "int", "range": [300, 500], "unit": "mV" },
   { "key": "vbat_min_cell_voltage",        "tab": "power_battery", "section": "Cell Voltages",           "label": "Min Cell Voltage (mV)",             "description": "Minimum safe voltage per cell. Going below this damages cells permanently. Typical: 320-330mV for standard LiPo.", "type": "int", "range": [200, 400], "unit": "mV" },
@@ -53,8 +47,8 @@
   { "key": "bat_capacity",                 "tab": "power_battery", "section": "Capacity & Compensation", "label": "Battery Capacity (mAh)",            "description": "Your battery capacity in milliamp-hours. Used to calculate remaining charge and flight time in the OSD.", "type": "int", "range": [0, 10000], "unit": "mAh" },
   { "key": "vbat_sag_compensation",        "tab": "power_battery", "section": "Capacity & Compensation", "label": "Voltage Sag Compensation (%)",      "description": "Automatically boosts motor output to compensate for voltage drop under load. 100% = full compensation. Helps the quad feel consistent as battery drains.", "type": "int", "range": [0, 150], "unit": "%" },
 
-  { "key": "vbat_scale",                   "tab": "power_battery", "section": "Calibration (Hardware-Specific)", "label": "Battery Voltage Scale",     "description": "Voltage sensor calibration — unique to each FC unit. Must be verified with a multimeter. Never copy between builds.", "type": "readonly", "hardware_specific": true },
-  { "key": "ibata_scale",                  "tab": "power_battery", "section": "Calibration (Hardware-Specific)", "label": "Current Sensor Scale",      "description": "Current sensor calibration — unique to each FC unit. Calibrate against a known current draw. Never copy between builds.", "type": "readonly", "hardware_specific": true },
+  { "key": "vbat_scale",                   "tab": "power_battery", "section": "Calibration (Hardware-Specific)", "label": "Battery Voltage Scale",     "description": "Voltage sensor calibration â€” unique to each FC unit. Must be verified with a multimeter. Never copy between builds.", "type": "readonly", "hardware_specific": true },
+  { "key": "ibata_scale",                  "tab": "power_battery", "section": "Calibration (Hardware-Specific)", "label": "Current Sensor Scale",      "description": "Current sensor calibration â€” unique to each FC unit. Calibrate against a known current draw. Never copy between builds.", "type": "readonly", "hardware_specific": true },
 
   { "key": "p_roll",                       "tab": "pid_tuning",    "section": "Roll",                    "label": "Roll P",                            "description": "Proportional gain for roll. Controls how strongly the FC corrects roll errors. Too high = oscillations at steady throttle. Too low = mushy, unresponsive roll.", "type": "int", "range": [0, 200], "profile_scoped": true },
   { "key": "i_roll",                       "tab": "pid_tuning",    "section": "Roll",                    "label": "Roll I",                            "description": "Integral gain for roll. Corrects sustained errors and helps hold angle against wind. Too high = slow wobble or I-windup.", "type": "int", "range": [0, 200], "profile_scoped": true },
@@ -75,7 +69,7 @@
   { "key": "f_yaw",                        "tab": "pid_tuning",    "section": "Yaw",                     "label": "Yaw F (Feedforward)",               "description": "Feedforward for yaw. Adds anticipation to yaw stick inputs.", "type": "int", "range": [0, 2000], "profile_scoped": true },
   { "key": "d_max_gain",                   "tab": "pid_tuning",    "section": "Yaw",                     "label": "D Max Gain",                        "description": "Controls how quickly D scales from D-Min to D-Max during stick inputs. Higher = faster transition. Applied to all axes.", "type": "int", "range": [0, 100], "profile_scoped": true },
 
-  { "key": "iterm_limit",                  "tab": "pid_tuning",    "section": "Response Shaping",        "label": "I-Term Limit",                      "description": "Caps maximum I-term accumulation to prevent I-windup — where I keeps building when the quad cannot respond fast enough.", "type": "int", "range": [0, 500], "profile_scoped": true },
+  { "key": "iterm_limit",                  "tab": "pid_tuning",    "section": "Response Shaping",        "label": "I-Term Limit",                      "description": "Caps maximum I-term accumulation to prevent I-windup â€” where I keeps building when the quad cannot respond fast enough.", "type": "int", "range": [0, 500], "profile_scoped": true },
   { "key": "iterm_relax_cutoff",           "tab": "pid_tuning",    "section": "Response Shaping",        "label": "I-Term Relax Cutoff (Hz)",          "description": "Reduces I-term during fast stick moves (flips/rolls) to prevent bounce-back. Lower cutoff = more relaxation.", "type": "int", "range": [1, 100], "unit": "Hz", "profile_scoped": true },
   { "key": "throttle_boost",               "tab": "pid_tuning",    "section": "Response Shaping",        "label": "Throttle Boost",                    "description": "Boosts throttle response on fast inputs. Helps with prop wash on fast descents. Too high = bouncy throttle.", "type": "int", "range": [0, 100], "profile_scoped": true },
   { "key": "thrust_linear",                "tab": "pid_tuning",    "section": "Response Shaping",        "label": "Thrust Linearisation (%)",          "description": "Compensates for the non-linear thrust curve of propellers. Helps PIDs feel consistent across the throttle range. Typical: 20-40%.", "type": "int", "range": [0, 150], "unit": "%", "profile_scoped": true },
@@ -101,7 +95,7 @@
   { "key": "gyro_lpf2_static_hz",          "tab": "filtering",     "section": "Gyro Filtering",          "label": "Gyro LPF2 Static (Hz)",            "description": "Second gyro low-pass filter. Adds an extra noise rejection stage after LPF1. Set to 0 to disable.", "type": "int", "range": [0, 1000], "unit": "Hz" },
   { "key": "gyro_lpf2_type",               "tab": "filtering",     "section": "Gyro Filtering",          "label": "Gyro LPF2 Type",                   "description": "Filter shape for gyro LPF2. PT1 = gentle rolloff. PT2/PT3 = steeper with more phase delay. BIQUAD = steepest.", "type": "enum", "options": ["PT1", "PT2", "PT3", "BIQUAD"] },
 
-  { "key": "dterm_lpf1_static_hz",         "tab": "filtering",     "section": "D-Term Filtering",        "label": "D-Term LPF1 Static (Hz)",          "description": "First D-term low-pass filter cutoff. D-term is inherently noisy — this is its primary noise filter. Set to 0 for dynamic mode.", "type": "int", "range": [0, 1000], "unit": "Hz" },
+  { "key": "dterm_lpf1_static_hz",         "tab": "filtering",     "section": "D-Term Filtering",        "label": "D-Term LPF1 Static (Hz)",          "description": "First D-term low-pass filter cutoff. D-term is inherently noisy â€” this is its primary noise filter. Set to 0 for dynamic mode.", "type": "int", "range": [0, 1000], "unit": "Hz" },
   { "key": "dterm_lpf1_dyn_min_hz",        "tab": "filtering",     "section": "D-Term Filtering",        "label": "D-Term LPF1 Dynamic Min (Hz)",     "description": "Minimum cutoff for dynamic D-term LPF1.", "type": "int", "range": [0, 1000], "unit": "Hz" },
   { "key": "dterm_lpf1_dyn_max_hz",        "tab": "filtering",     "section": "D-Term Filtering",        "label": "D-Term LPF1 Dynamic Max (Hz)",     "description": "Maximum cutoff for dynamic D-term LPF1.", "type": "int", "range": [0, 1000], "unit": "Hz" },
   { "key": "dterm_lpf1_dyn_expo",          "tab": "filtering",     "section": "D-Term Filtering",        "label": "D-Term LPF1 Dynamic Expo",         "description": "Shapes the dynamic D-term filter curve. Higher = filter spends more time at lower frequencies (more filtering at rest).", "type": "int", "range": [0, 10] },
@@ -116,7 +110,6 @@
   { "key": "rpm_filter_fade_range_hz",     "tab": "filtering",     "section": "RPM Filter",              "label": "RPM Filter Fade Range (Hz)",       "description": "Frequency range over which RPM notch filters fade in from 0 Hz. Prevents targeting very low RPM noise at idle.", "type": "int", "range": [0, 1000], "unit": "Hz" },
 
   { "key": "yaw_lowpass_hz",               "tab": "filtering",     "section": "Misc Filtering",          "label": "Yaw Lowpass (Hz)",                 "description": "Low-pass filter on yaw PID output. Reduces yaw noise and twitchiness. Set to 0 to disable.", "type": "int", "range": [0, 500], "unit": "Hz" },
-  { "key": "acc_lpf_hz",                   "tab": "filtering",     "section": "Misc Filtering",          "label": "Accelerometer LPF (Hz)",           "description": "Low-pass filter on the accelerometer. Only affects Angle/Horizon modes and launch control. Not relevant for pure acro flying.", "type": "int", "range": [0, 30], "unit": "Hz" },
 
   { "key": "deadband",                     "tab": "receiver",      "section": "Stick Sensitivity",       "label": "RC Deadband",                      "description": "Stick deadband around centre for roll and pitch in microseconds. Inputs within this range are treated as centred. Helps with drifty sticks.", "type": "int", "range": [0, 32] },
   { "key": "yaw_deadband",                 "tab": "receiver",      "section": "Stick Sensitivity",       "label": "Yaw Deadband",                     "description": "Stick deadband around centre for the yaw axis only. Same concept as RC Deadband but for yaw.", "type": "int", "range": [0, 32] },
@@ -129,7 +122,6 @@
   { "key": "vtx_power",                    "tab": "vtx",           "section": "Channel & Power",         "label": "VTX Power Level",                  "description": "Transmit power index. Specific power levels (mW) depend on your VTX model. 1 = lowest. Always fly at the lowest power that gives reliable video.", "type": "int", "range": [0, 7] },
   { "key": "vtx_freq",                     "tab": "vtx",           "section": "Channel & Power",         "label": "VTX Frequency (MHz)",              "description": "Output frequency derived from your band and channel selection. Read-only reference.", "type": "readonly" },
 
-  { "key": "vcd_video_system",             "tab": "vtx",           "section": "Display System",          "label": "Video System",                     "description": "Video signal standard for analog systems. NTSC = 60Hz (North America / Japan). PAL = 50Hz (Europe / Australia). Digital systems (HDZero, DJI, Walksnail) ignore this.", "type": "enum", "options": ["AUTO", "NTSC", "PAL", "HD"] },
 
   { "key": "rateprofile_name",             "tab": "rates",         "section": "Profile Identity",        "label": "Rate Profile Name",                "description": "Display name for this rate profile shown in the OSD rate profile indicator.", "type": "string", "rate_scoped": true },
   { "key": "rates_type",                   "tab": "rates",         "section": "Profile Identity",        "label": "Rates Type",                       "description": "Rate calculation method. BETAFLIGHT = classic RC Rate / Super Rate / Expo system. ACTUAL = set max degrees per second directly. QUICK = simplified curve.", "type": "enum", "options": ["BETAFLIGHT", "KISS", "ACTUAL", "QUICK"], "rate_scoped": true },
@@ -146,14 +138,14 @@
   { "key": "yaw_srate",                    "tab": "rates",         "section": "Yaw",                     "label": "Yaw Super Rate",                   "description": "Exponential yaw rate boost at full stick.", "type": "int", "range": [0, 100], "rate_scoped": true },
   { "key": "yaw_expo",                     "tab": "rates",         "section": "Yaw",                     "label": "Yaw Expo",                         "description": "Softens yaw feel around centre.", "type": "int", "range": [0, 100], "rate_scoped": true },
 
-  { "key": "thr_mid",                      "tab": "rates",         "section": "Throttle",                "label": "Throttle Mid (%)",                 "description": "Throttle response curve midpoint. 50 = linear. Lower = more sensitive below mid-stick.", "type": "int", "range": [0, 100], "unit": "%", "rate_scoped": true },
-  { "key": "thr_hover",                    "tab": "rates",         "section": "Throttle",                "label": "Hover Throttle (%)",               "description": "Estimated hover throttle as a percentage. Used as reference by some flight modes.", "type": "int", "range": [0, 100], "unit": "%", "rate_scoped": true }
+  { "key": "thr_mid",                      "tab": "rates",         "section": "Throttle",                "label": "Hover Throttle Mid (%)",           "description": "BF 4.2+ only: internal hover throttle midpoint reference used by altitude-aware modes (EZ Landing, turtle mode). Does NOT affect regular throttle stick feel or response curve in acro/freestyle flying.", "type": "int", "range": [0, 100], "unit": "%", "rate_scoped": true },
+  { "key": "thr_hover",                    "tab": "rates",         "section": "Throttle",                "label": "Hover Throttle (%)",               "description": "Estimated throttle percentage at which your quad hovers. Used by EZ Landing, turtle mode recovery, and similar altitude-aware features to determine a throttle baseline. Has no effect in pure acro flying.", "type": "int", "range": [0, 100], "unit": "%", "rate_scoped": true }
 ]
 </script>
 
-<!-- ── Header ────────────────────────────────────────────────────────────── -->
+<!-- â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <header>
-  <div class="header-logo">⚡</div>
+  <div class="header-logo">âš¡</div>
   <div class="header-text">
     <h1>Betaflight Config Editor</h1>
     <p>Import any Betaflight CLI export &bull; Edit safely &bull; Export a clean, ready-to-paste config</p>
@@ -162,34 +154,34 @@
 
 <main>
 
-  <!-- ── Import ──────────────────────────────────────────────────────────── -->
+  <!-- â”€â”€ Import â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <section class="card">
     <h2>Import Config</h2>
     <div class="import-row">
       <div class="import-upload-area" onclick="document.getElementById('file-upload').click()">
-        <span class="upload-icon">📂</span>
+        <span class="upload-icon">ðŸ“‚</span>
         <span class="upload-label">Click to upload .txt file</span>
         <span id="file-name">No file selected</span>
         <input type="file" id="file-upload" accept=".txt" style="display:none">
       </div>
       <div class="import-divider">or</div>
-      <textarea id="paste-area" placeholder="Paste your Betaflight CLI text here…"></textarea>
+      <textarea id="paste-area" placeholder="Paste your Betaflight CLI text hereâ€¦"></textarea>
     </div>
     <div class="import-actions">
-      <button id="load-btn" class="btn btn-primary">⚙ Load Config</button>
+      <button id="load-btn" class="btn btn-primary">âš™ Load Config</button>
     </div>
     <div id="import-error" class="error-msg" style="display:none"></div>
   </section>
 
-  <!-- ── Config Info Bar ─────────────────────────────────────────────────── -->
+  <!-- â”€â”€ Config Info Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <div id="config-info" style="display:none">
-    <span class="info-badge" id="info-version">BF <span>—</span></span>
-    <span class="info-badge" id="info-craft">Craft: <span>—</span></span>
-    <span class="info-badge" id="info-pid-profiles">PID Profiles: <span>—</span></span>
-    <span class="info-badge" id="info-rate-profiles">Rate Profiles: <span>—</span></span>
+    <span class="info-badge" id="info-version">BF <span>â€”</span></span>
+    <span class="info-badge" id="info-craft">Craft: <span>â€”</span></span>
+    <span class="info-badge" id="info-pid-profiles">PID Profiles: <span>â€”</span></span>
+    <span class="info-badge" id="info-rate-profiles">Rate Profiles: <span>â€”</span></span>
   </div>
 
-  <!-- ── Editor ──────────────────────────────────────────────────────────── -->
+  <!-- â”€â”€ Editor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <section id="editor-section" style="display:none">
 
     <!-- Tab Navigation -->
@@ -244,7 +236,7 @@
     <div class="tab-panel" id="tab-receiver">
       <div class="fields-grid" id="fields-receiver"></div>
       <div class="callout callout-info" style="margin-top:20px">
-        <strong>ℹ ELRS Binding Phrase</strong>
+        <strong>â„¹ ELRS Binding Phrase</strong>
         The ELRS binding phrase is <strong>not stored in the Betaflight CLI</strong>. It lives in the ELRS
         firmware on your receiver and is configured via the ELRS Configurator or your transmitter's
         ELRS LUA script. You cannot set or copy it through this tool.
@@ -259,7 +251,7 @@
     <!-- Modes Tab -->
     <div class="tab-panel" id="tab-modes">
       <div class="callout callout-warn" style="margin-bottom:16px">
-        <strong>⚠ Mode Assignments</strong>
+        <strong>âš  Mode Assignments</strong>
         If you paste mode assignments below, they will <strong>replace</strong> the
         <code>mode_range</code> lines from your imported config on export. Leave blank to keep
         the original assignments. Use this to apply your RC switch layout to a config that
@@ -275,7 +267,7 @@
     <!-- Adjustments Tab -->
     <div class="tab-panel" id="tab-adjustments">
       <div class="callout callout-warn" style="margin-bottom:16px">
-        <strong>⚠ Adjustment Ranges</strong>
+        <strong>âš  Adjustment Ranges</strong>
         If you paste adjustment ranges below, they will <strong>replace</strong> the
         <code>adjrange</code> lines from your imported config on export. Leave blank to keep
         the original assignments.
@@ -289,12 +281,12 @@
 
   </section><!-- /editor -->
 
-  <!-- ── Export ──────────────────────────────────────────────────────────── -->
+  <!-- â”€â”€ Export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <section id="export-section" class="card" style="display:none">
     <h2>Export Config</h2>
     <div class="export-row">
       <input type="text" id="export-filename" placeholder="my_quad_edited.txt" value="exported_config.txt">
-      <button id="export-btn" class="btn btn-primary">💾 Download .txt</button>
+      <button id="export-btn" class="btn btn-primary">ðŸ’¾ Download .txt</button>
     </div>
   </section>
 
@@ -306,7 +298,7 @@
   <a href="https://github.com/FPVTHINGS/Betaflight-Config-Editor" target="_blank" rel="noopener">GitHub</a>
 </footer>
 
-<!-- ── PyScript ──────────────────────────────────────────────────────────── -->
+<!-- â”€â”€ PyScript â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <script type="py" src="app.py"></script>
 
 </body>
