@@ -79,7 +79,7 @@ Navigate the tabs — the layout mirrors Betaflight Configurator:
 | **Power & Battery** | Cell voltage thresholds, battery capacity, sag compensation |
 | **PID Tuning** | P/I/D/F per axis, D-Min/D-Max, I-term settings, feedforward, simplified tuning |
 | **Filtering** | Gyro and D-term filters, dynamic notch, RPM filter weights |
-| **Receiver** | Stick deadband, ELRS model ID and packet rate |
+| **Receiver** | Stick deadband (roll/pitch and yaw) |
 | **Video Transmitter** | VTX band, channel, power level |
 | **Modes** | Paste your own `mode_range` switch assignments |
 | **Adjustments** | Paste your own `adjrange` lines |

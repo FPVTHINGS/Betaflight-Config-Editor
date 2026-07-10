@@ -230,12 +230,6 @@ footer a:hover{color:var(--accent)}
 
     <div class="tab-panel" id="tab-receiver">
       <div class="fields-grid" id="fields-receiver"></div>
-      <div class="callout callout-info" style="margin-top:20px">
-        <strong>&#x2139; ELRS Binding Phrase</strong>
-        The ELRS binding phrase is <strong>not stored in the Betaflight CLI</strong>. It lives in
-        the ELRS firmware on your receiver and is configured via the ELRS Configurator or your
-        transmitter&rsquo;s ELRS LUA script. You cannot set or copy it through this tool.
-      </div>
     </div>
 
     <div class="tab-panel" id="tab-vtx">
@@ -555,13 +549,6 @@ const PARAMS = [
   { key:'yaw_deadband', tab:'receiver', section:'Stick Sensitivity',
     label:'Yaw Deadband', type:'int', range:[0,32],
     description:'Stick deadband around centre for the yaw axis only. Same concept as RC Deadband but for yaw.' },
-  { key:'expresslrs_model_id', tab:'receiver', section:'ExpressLRS (SPI)',
-    label:'ELRS Model ID', type:'int', range:[0,63],
-    description:'Model Match ID for ExpressLRS. When Model Match is enabled on your TX, the RX only pairs with a TX sending this ID. Set to 0 to disable Model Match.' },
-  { key:'expresslrs_rate_index', tab:'receiver', section:'ExpressLRS (SPI)',
-    label:'ELRS Packet Rate', type:'enum',
-    options:['0 (500Hz)','1 (250Hz)','2 (150Hz)','3 (100Hz)','4 (50Hz)','5 (25Hz)'],
-    description:'Default RF packet rate index for ELRS SPI receivers. Lower index = higher frequency = lower latency but shorter range.' },
 
   // ── VTX ──────────────────────────────────────────────────────────────────
   { key:'vtx_band', tab:'vtx', section:'Channel & Power',
